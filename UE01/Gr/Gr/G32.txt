@@ -1,0 +1,4 @@
+G(S):
+S -> a A | b A
+A -> a | a S | b A A
+B -> b | b S | a B B

@@ -42,6 +42,9 @@
     <ClCompile Include="GrammarBasics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Language.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vocabulary.h">
@@ -71,9 +74,18 @@
     <ClInclude Include="Grammar.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Language.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="G.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="G27.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="G32.txt">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>

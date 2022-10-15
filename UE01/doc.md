@@ -72,33 +72,27 @@ EBNF ist lesbarer, da man mit Optionen wesentlich einfacher durch `"["` und `"]"
 
 ## e)
 
-Es gibt mehere Syntax-Bäume, weil die Grammatik nicht eindeutig ist und ned epsilon-frei.
+![bam](imgs/bam.PNG)
+
+Die Grammatik ist zwar mehrdeuting aber ich konnte keinen zweiten Syntax-Baum für diesen Satz finden.
 
 # 2. Konstruktion einer Grammatik
 
 ## Regelsystem
 
-S -> OptSign LeadingDigit MiddleDigits UnevenNaturalDigit | OptSign UnevenNaturalDigit .
+S -> OptSign LeadingDigit MiddleDigits UnevenNaturalDigit | OptSign UnevenNaturalDigit . // man könnte auch OptSign weglassen und dafür 4 weitere Optionen im NT "S" hinzufügen
 
-OptSign -> ε | - .
+OptSign -> ε | + | - .
 
-MiddleDigits -> ε | AnyDigit MiddleDigits .
+MiddleDigits -> ε | 0 MiddleDigits | LeadingDigit MiddleDigits .
 
 UnevenNaturalDigit -> 1 | 3 | 5 | 7 | 9 .
 
 LeadingDigit -> UnevenNaturalDigit | 2 | 4 | 6 | 8 .
 
-AnyDigit -> 0 | LeadingDigit .
-
 ## EBNF
 
-S = \[ - \] \[ LeadingDigit { AnyDigit } \] UnevenNaturalDigit .
-
-UnevenNaturalDigit = 1 | 3 | 5 | 7 | 9 .
-
-LeadingDigit = UnevenNaturalDigit | 2 | 4 | 6 | 8 .
-
-AnyDigit = 0 | LeadingDigit .
+S = \[ + | - \] \[ (1|2|3|4|5|6|7|8|9) { (0|1|2|3|4|5|6|7|8|9) } \] (1|3|5|7|9) . 
 
 # 3. Oo-Implementierung von Grammatiken
 

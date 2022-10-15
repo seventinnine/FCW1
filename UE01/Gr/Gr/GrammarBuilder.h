@@ -35,7 +35,7 @@ class GrammarBuilder final // no public base class
 
     // data components: same as in class Grammar but all non-const
 
-    NTSymbol *root;     // no ownership: SymbolPool is the owner of all symbols
+    NTSymbol* root;     // no ownership: SymbolPool is the owner of all symbols
     RulesMap  rules;    // has at least an empty rule for root
     VNt       vNt;      // all nonterminals for rules, including root
     VT        vT;       // all terminals occuring in rules
@@ -55,6 +55,7 @@ class GrammarBuilder final // no public base class
 
   public:
 
+    GrammarBuilder() = default; // empty builder, needs programmatical init.
     GrammarBuilder(NTSymbol *root); // empty builder, needs programmatical init.
 
     GrammarBuilder(const std::string &fileName); // init. with contents of text file
