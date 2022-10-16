@@ -53,9 +53,8 @@ class GrammarBuilder final // no public base class
     bool insertIntoVNt(NTSymbol *ntSy); // true if inserted else sy is a duplicate
     bool insertIntoVT (TSymbol  *tSy);  // true if inserted else sy is a duplicate
 
-  public:
+public:
 
-    GrammarBuilder() = default; // empty builder, needs programmatical init.
     GrammarBuilder(NTSymbol *root); // empty builder, needs programmatical init.
 
     GrammarBuilder(const std::string &fileName); // init. with contents of text file

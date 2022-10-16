@@ -153,8 +153,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="G.txt" />
-    <Text Include="G27.txt" />
-    <Text Include="G32.txt" />
+    <Text Include="G1.txt" />
+    <Text Include="G23.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

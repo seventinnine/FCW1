@@ -82,10 +82,10 @@
     <Text Include="G.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="G27.txt">
+    <Text Include="G23.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="G32.txt">
+    <Text Include="G1.txt">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>

@@ -45,9 +45,10 @@ Grammar* newEpsilonFreeGrammarOf(Grammar* g) {
     // use symbolpool to get instances by name 
     // (symbols from initial creation are still stored in SymbolPoolData)
     SymbolPool sp{};
-    GrammarBuilder gb{}; // set root later (added default-ctor in GrammarBuilder.h)
+    GrammarBuilder gb{g->root}; // reuse old root for now
 
     // for each rule
+    // c++20 structureed binding
     for (const auto& [nt, sequenceSet] : g->rules)
     {
         // iterate over old sequence set
@@ -59,71 +60,84 @@ Grammar* newEpsilonFreeGrammarOf(Grammar* g) {
             // add copy
             gb.addRule(nt, new Sequence(*seq));
 
-            // evaluate on which indices of current sequence deletable NTs are
+            // evaluate which indices of current sequence are deletable NTs
             std::vector<int> indicesForCombination{};
             for (int i = 0; i < seq->size(); i++) {
                 Symbol* currSy = seq->at(i);
-                if (currSy->isNT() && deletable.contains(dynamic_cast<NTSymbol*>(currSy))) {
+                if (currSy->isNT() && 
+                    deletable.contains(dynamic_cast<NTSymbol*>(currSy))) {
                     indicesForCombination.push_back(i);
                 }
             }
 
             // add the current sequence with every possible combination
-            // of indices in indicesForCombination
-            for (int i = 0; i < 1 << indicesForCombination.size(); ++i) { // 2^n(-1) iterations
+            // of not including NTs in indicesForCombination
+             // 2^n(-1) iterations
+            for (int i = 0; i < 1 << indicesForCombination.size(); ++i) {
                 Sequence* copy = new Sequence(*seq);
                 for (int j = indicesForCombination.size() - 1; j >= 0; --j) {
-                    // weird bithack to generate all possible combinations
+                    // generate all possible combinations 
+                    // of indices in indicesForCombination
                     if (((1 << j) & i) > 0) {
                         copy->removeSymbolAt(indicesForCombination[j]);
                     }
                 }
-                // don't add empty alternatives (also, addRule already ignores duplicates)
+                // don't add empty alternatives
+                // also duplicates are ignored
                 if (!copy->isEpsilon()) gb.addRule(nt, copy);
             }
-
         }
     }
 
     // step 3
-    if (!deletable.contains(g->root)) {
-        gb.setNewRoot(g->root);
-    }
-    else {
-        // add S'
+    if (deletable.contains(g->root)) {
+        // add S' (or rather name of original root node + ')
         NTSymbol* newRoot = sp.ntSymbol(g->root->name + "'");
-        gb.addRule(newRoot, { new Sequence({g->root}), new Sequence() });
+        gb.addRule(newRoot, { new Sequence({g->root}), new Sequence() /* eps */});
         gb.setNewRoot(newRoot);
     }
 
     return gb.buildGrammar();
 }
 
-void languageOfRecursive(Language * language, const RulesMap & rules, const SequenceSet& sequences, Sentence currSentence, int maxLen) {
+void languageOfRecursive(
+    Language * language, 
+    const RulesMap & rules, 
+    const SequenceSet& sequences, 
+    // copy ctor of Sequence copies the collection, making use of call stack
+    Sequence currSentence, 
+    int maxLen
+) {
     if (currSentence.length() >= maxLen) return;
+
     for (const Sequence* rule : sequences) {
+        // look at each symbol of current rule (alternative)
         for (Symbol* sy : *rule) {
             if (sy->isNT()) {
-                languageOfRecursive(language, rules, rules[dynamic_cast<NTSymbol*>(sy)], currSentence, maxLen);
+                // go to coresponding NTSymbol in the RulesMap
+                NTSymbol* ntSy = dynamic_cast<NTSymbol*>(sy); // cannot be null
+                languageOfRecursive(language, rules, rules[ntSy], currSentence, maxLen);
             }
             else {
-                currSentence.addWord(dynamic_cast<TSymbol*>(sy));
+                // add TSymbol to current sentence
+                currSentence.append(sy);
             }
         }
         if (currSentence.length() <= maxLen) {
-            language->addSentence(new Sentence(currSentence));
+            // copy is necessary here because otherwise
+            // we would get the TSymbols of the next alternative
+            // in the previously added sentence (which we don't want)
+            language->addSentence(new Sequence(currSentence));
         }
     }
 }
 
 Language* languageOf(const Grammar* g, int maxLen) {
-    Language* language = new Language();
-    Sentence s{};
+    Language* language = new Language(maxLen);
+    Sequence s{};
     languageOfRecursive(language, g->rules, g->rules[g->root], s, maxLen);
     return language;
 }
-
-// c) epsilonfrei
 
 int main(int argc, char* argv[]) {
 
@@ -147,7 +161,8 @@ int main(int argc, char* argv[]) {
 
 
         // *** test case selection: 1, 2, or 3 ***
-#define TESTCASE 2
+#define TESTCASE 5
+
 // ***************************************
 
         cout << "TESTCASE " << TESTCASE << endl << endl;
@@ -196,16 +211,12 @@ int main(int argc, char* argv[]) {
 
 #elif TESTCASE == 2 // grammar construction from text file
 
-        gb2 = new GrammarBuilder(string("G32.txt"));
+        gb2 = new GrammarBuilder(string("G.txt"));
         g2 = gb2->buildGrammar();
-        Grammar * epsilonFree = newEpsilonFreeGrammarOf(g2);
-        Language * languageG2 = languageOf(epsilonFree, 6);
         // or for short: g2 = GrammarBuilder(string("G.txt")).buildGrammar();
 
-        cout << "grammar from text file:" << endl << *g2 << endl;
-        cout << "newEpsilonFreeGrammarOf(g2):" << endl << *epsilonFree << endl;
-        cout << "language(g2):" << endl << *languageG2 << endl;
-
+        cout << "grammar from text file:" << endl << *g2 << endl;       
+    
 
 #elif TESTCASE == 3 // grammar construction from C string literal
 
@@ -220,6 +231,50 @@ int main(int argc, char* argv[]) {
 
         cout << "grammar from C string:" << endl << *g3 << endl;
 
+#elif TESTCASE == 4
+
+        gb2 = new GrammarBuilder(string("G1.txt"));
+        g2 = gb2->buildGrammar();
+        Grammar* epsilonFree = newEpsilonFreeGrammarOf(g2);
+        // or for short: g2 = GrammarBuilder(string("G.txt")).buildGrammar();
+
+        cout << "grammar from text file:" << endl << *g2 << endl;
+        cout << "newEpsilonFreeGrammarOf(g2):" << endl << *epsilonFree << endl;
+
+
+#elif TESTCASE == 5
+
+        gb2 = new GrammarBuilder(string("G23.txt"));
+        g2 = gb2->buildGrammar();
+        Grammar* epsilonFree = newEpsilonFreeGrammarOf(g2);
+
+        Language* languageG2 = languageOf(epsilonFree, 6);
+        Sequence& s1 = languageG2->at(1);
+        Sequence madeUpSequence{ 
+            sp->symbolFor("a"), 
+            sp->symbolFor("a"), 
+            sp->symbolFor("a"), 
+            sp->symbolFor("b") 
+        };
+        Sequence madeUpSequenceNotContained{ 
+            sp->symbolFor("a"), 
+            sp->symbolFor("b"), 
+            sp->symbolFor("b"), 
+            sp->symbolFor("b") 
+        };
+
+        cout << "grammar from text file:" << endl << *g2 << endl;
+        cout << "newEpsilonFreeGrammarOf(g2):" << endl << *epsilonFree << endl;
+        cout << "language(g2):" << endl << *languageG2 << endl;
+        cout << "s1: " << s1 << endl;
+        cout << "languageG2.hasSentence(s1): " << boolalpha 
+            << languageG2->hasSentence(&s1) << endl;
+        cout << "madeUpSequence: " << madeUpSequence << endl;
+        cout << "languageG2.hasSentence(madeUpSequence): " << boolalpha 
+            << languageG2->hasSentence(&madeUpSequence) << endl;
+        cout << "madeUpSequence: " << madeUpSequenceNotContained << endl;
+        cout << "languageG2.hasSentence(madeUpSequenceNotContained): " << boolalpha 
+            << languageG2->hasSentence(&madeUpSequenceNotContained) << endl;
 
 #else // none of the TESTCASEs above
 

@@ -68,7 +68,7 @@ DataDoListRest -> ε
 
 ExprList -> expr | ExprList `","` expr .
 
-EBNF ist lesbarer, da man mit Optionen wesentlich einfacher durch `"["` und `"]"` ausdrücken kann und keine Rekursion für das mehrfache Vorkommen von \[Terminal-\]Symbolen verwenden muss.
+EBNF ist lesbarer, da man mit weniger Alternativen durch Verwendung von `"["` und `"]"` benötigt kann und keine Rekursion mit NTs für das mehrfache Vorkommen von \[Terminal-\]Symbolen verwenden muss.
 
 ## e)
 
@@ -94,25 +94,58 @@ LeadingDigit -> UnevenNaturalDigit | 2 | 4 | 6 | 8 .
 
 S = \[ + | - \] \[ (1|2|3|4|5|6|7|8|9) { (0|1|2|3|4|5|6|7|8|9) } \] (1|3|5|7|9) . 
 
+<div style="page-break-after: always; visibility: hidden"> 
+\pagebreak 
+</div>
+
 # 3. Oo-Implementierung von Grammatiken
+
+No changes made to existing code. I used C++20.
 
 ## a)
 
-```cpp
+### main.cpp
 
+![](imgs/main1.PNG)
 
-```
+<div style="page-break-after: always; visibility: hidden"> 
+\pagebreak 
+</div>
 
-## b)
+### Testcode:
 
-```cpp
+![](imgs/test1.PNG)
 
+### Result:
 
-```
+![](imgs/result1.PNG)
 
-## c)
+## b) and also c)
 
-```cpp
+### main.cpp
 
+![](imgs/main2.PNG)
 
-```
+<div style="page-break-after: always; visibility: hidden"> 
+\pagebreak 
+</div>
+
+### Language.h
+
+![](imgs/language_h.PNG)
+
+<div style="page-break-after: always; visibility: hidden"> 
+\pagebreak 
+</div>
+
+### Language.cpp
+
+![](imgs/language_cpp.PNG)
+
+### Testcode:
+
+![](imgs/test2.PNG)
+
+### Result:
+
+![](imgs/result2.PNG)
