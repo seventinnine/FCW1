@@ -33,6 +33,7 @@ using namespace std;
 #include "GrammarBasics.cpp"
 #include "GrammarBuilder.cpp"
 #include "Grammar.cpp"
+#include "Language.cpp"
 #endif
 
 
@@ -61,25 +62,27 @@ Grammar* newEpsilonFreeGrammarOf(Grammar* g) {
             gb.addRule(nt, new Sequence(*seq));
 
             // evaluate which indices of current sequence are deletable NTs
-            std::vector<int> indicesForCombination{};
+            std::vector<int> deletableNTindices{};
             for (int i = 0; i < seq->size(); i++) {
                 Symbol* currSy = seq->at(i);
                 if (currSy->isNT() && 
                     deletable.contains(dynamic_cast<NTSymbol*>(currSy))) {
-                    indicesForCombination.push_back(i);
+                    deletableNTindices.push_back(i);
                 }
             }
 
             // add the current sequence with every possible combination
-            // of not including NTs in indicesForCombination
+            // of not including NTs in deletableNTindices
              // 2^n(-1) iterations
-            for (int i = 0; i < 1 << indicesForCombination.size(); ++i) {
+            for (int i = 0; i < 1 << deletableNTindices.size(); ++i) {
                 Sequence* copy = new Sequence(*seq);
-                for (int j = indicesForCombination.size() - 1; j >= 0; --j) {
+                for (int j = deletableNTindices.size() - 1; j >= 0; --j) {
                     // generate all possible combinations 
-                    // of indices in indicesForCombination
+                    // of indices in deletableNTindices
+                    int symbolsRemoved = 0;
                     if (((1 << j) & i) > 0) {
-                        copy->removeSymbolAt(indicesForCombination[j]);
+                        copy->removeSymbolAt(deletableNTindices[j - symbolsRemoved]);
+                        symbolsRemoved += 1;
                     }
                 }
                 // don't add empty alternatives
@@ -161,7 +164,7 @@ int main(int argc, char* argv[]) {
 
 
         // *** test case selection: 1, 2, or 3 ***
-#define TESTCASE 5
+#define TESTCASE 4
 
 // ***************************************
 

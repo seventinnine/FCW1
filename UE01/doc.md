@@ -74,7 +74,7 @@ EBNF ist lesbarer, da man mit weniger Alternativen durch Verwendung von `"["` un
 
 ![bam](imgs/bam.PNG)
 
-Die Grammatik ist zwar mehrdeuting aber ich konnte keinen zweiten Syntax-Baum für diesen Satz finden.
+Für diesen Satz gib es nur einen Syntaxbaum, da es bei jeder Regel nur eine Alternative gibt, die zu diesem gegeben Satz führt.
 
 # 2. Konstruktion einer Grammatik
 
@@ -149,3 +149,14 @@ No changes made to existing code. I used C++20.
 ### Result:
 
 ![](imgs/result2.PNG)
+
+Man kann erkennen, dass die länge der generieten Sätze immer gerade ist und jeder Satz gleich viele `a` wie `b` hat.
+
+Ja kann man.
+Der einfachste Satz wäre `S -> b A -> b a`, indem man die erste Alternative von `A` verwendet.
+Bei der dritten Alternative vom NTSymbol `A` gibt es gleich viele TSymbole `b` wie NTSymbole `A`.
+Jedes NTSymbol `A` terminiert in TSymbol `a` oder es kommt zur Ableitung in die dritten Alternative, wodurch effektiv wider ein TSymbol `a` und ein NTSymbol `A` hinzukommen.
+Beim Ableiten der zweiten alternative kommt wie bei der ersten Alternative auch ein TSymbol `a` hinzu und ein neuer Satz `S`.
+Wenn alle Ableitungen vor dem Ableiten von `S` durchgeführt werden, befinden sich bereits gleich viele `a` wie `b` im Satz.
+Jedes vorkommende `S` muss daher auch gleich viele `a` wie `b` erzeugen.
+Das gleiche gilt auch in die andere Richtung `S -> a B`, da die Regeln im NTSymbol `B` nur `b` und `A` mit `a` und `B` getauscht haben.
