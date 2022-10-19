@@ -18,7 +18,6 @@ std::ostream& operator <<(std::ostream& os, const Language& language) {
 	return os;
 }
 
-
 Sequence& Language::at(int idx) const {
 	if (idx >= sentences.size() || idx < 0)
 		throw std::invalid_argument("invalid index");

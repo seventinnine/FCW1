@@ -102,43 +102,91 @@ Grammar* newEpsilonFreeGrammarOf(Grammar* g) {
 
     return gb.buildGrammar();
 }
-
-void languageOfRecursive(
+/*
+bool languageOfRecursive(
     Language * language, 
+    NTSymbol * const originalNTSymbol,
     const RulesMap & rules, 
-    const SequenceSet& sequences, 
     // copy ctor of Sequence copies the collection, making use of call stack
     Sequence currSentence, 
     int maxLen
 ) {
-    if (currSentence.length() >= maxLen) return;
+    if (currSentence.length() >= maxLen) return false;
 
-    for (const Sequence* rule : sequences) {
-        // look at each symbol of current rule (alternative)
-        for (Symbol* sy : *rule) {
+    bool keepGoing = true;
+
+    for (const Sequence* alternative : rules[originalNTSymbol]) {
+        // look at each symbol of current alternative
+        for (Symbol* sy : *alternative) {
             if (sy->isNT()) {
-                // go to coresponding NTSymbol in the RulesMap
+                // get coresponding NTSymbol from the RulesMap
                 NTSymbol* ntSy = dynamic_cast<NTSymbol*>(sy); // cannot be null
-                languageOfRecursive(language, rules, rules[ntSy], currSentence, maxLen);
+
+                // ignore this alternative if it does not contribute to the language directly 
+                if (alternative->length() != 1 || *originalNTSymbol != *ntSy) {
+                    keepGoing &= languageOfRecursive(language, ntSy, rules, currSentence, maxLen);
+                }
             }
             else {
                 // add TSymbol to current sentence
                 currSentence.append(sy);
             }
         }
-        if (currSentence.length() <= maxLen) {
+        if (keepGoing && currSentence.length() <= maxLen) {
             // copy is necessary here because otherwise
             // we would get the TSymbols of the next alternative
             // in the previously added sentence (which we don't want)
             language->addSentence(new Sequence(currSentence));
         }
     }
+    return true;
 }
+*/
+
+void languageOfRecursive(
+    Language* language,
+    NTSymbol* const originalNTSymbol,
+    const RulesMap& rules,
+    Sequence * currSentence,
+    int maxLen
+) {
+
+    int i = 0;
+    while (i < currSentence->size() && (*currSentence)[i]->isT()) {
+        i++;
+    }
+
+    // only tSymbols left?
+    if (i == currSentence->size() && currSentence->size() <= maxLen) {
+        language->addSentence(currSentence);
+        return;
+    }
+
+    NTSymbol* ntSy = dynamic_cast<NTSymbol*>((*currSentence)[i]);
+
+    // do same stuff recursive for all alternatives substituted
+    for (Sequence * alternative : rules[ntSy])
+    {
+        // this alternative makes the sentence too long - skip
+        if (currSentence->length() + alternative->length() - 1 > maxLen) continue;
+
+        // ignore this alternative if it does not contribute to the language directly 
+        if (alternative->length() == 1 && (*alternative)[0]->isNT() 
+            && *originalNTSymbol == *(*alternative)[0]) continue;
+
+        Sequence* derivedSentence = new Sequence(*currSentence);
+        derivedSentence->removeSymbolAt(i);
+        derivedSentence->append(alternative);
+
+        languageOfRecursive(language, ntSy, rules, derivedSentence, maxLen);
+    }   
+}
+
 
 Language* languageOf(const Grammar* g, int maxLen) {
     Language* language = new Language(maxLen);
-    Sequence s{};
-    languageOfRecursive(language, g->rules, g->rules[g->root], s, maxLen);
+    Sequence* s = new Sequence(g->root);
+    languageOfRecursive(language, g->root, g->rules, s, maxLen);
     return language;
 }
 
@@ -164,7 +212,7 @@ int main(int argc, char* argv[]) {
 
 
         // *** test case selection: 1, 2, or 3 ***
-#define TESTCASE 4
+#define TESTCASE 5
 
 // ***************************************
 
@@ -256,7 +304,7 @@ int main(int argc, char* argv[]) {
         Sequence madeUpSequence{ 
             sp->symbolFor("a"), 
             sp->symbolFor("a"), 
-            sp->symbolFor("a"), 
+            sp->symbolFor("b"), 
             sp->symbolFor("b") 
         };
         Sequence madeUpSequenceNotContained{ 

@@ -153,10 +153,10 @@ No changes made to existing code. I used C++20.
 Man kann erkennen, dass die länge der generieten Sätze immer gerade ist und jeder Satz gleich viele `a` wie `b` hat.
 
 Ja kann man.
-Der einfachste Satz wäre `S -> b A -> b a`, indem man die erste Alternative von `A` verwendet.
-Bei der dritten Alternative vom NTSymbol `A` gibt es gleich viele TSymbole `b` wie NTSymbole `A`.
-Jedes NTSymbol `A` terminiert in TSymbol `a` oder es kommt zur Ableitung in die dritten Alternative, wodurch effektiv wider ein TSymbol `a` und ein NTSymbol `A` hinzukommen.
-Beim Ableiten der zweiten alternative kommt wie bei der ersten Alternative auch ein TSymbol `a` hinzu und ein neuer Satz `S`.
-Wenn alle Ableitungen vor dem Ableiten von `S` durchgeführt werden, befinden sich bereits gleich viele `a` wie `b` im Satz.
-Jedes vorkommende `S` muss daher auch gleich viele `a` wie `b` erzeugen.
+Jedes NT `B` terminiert in genau ein `b` und jedes NT `A` terminiert in genau ein `a`.
+Wenn die Ableitung mit `S -> a B` anfängt, dann befindet sich schon ein `a` im Satz und das `B` wird schlussendlich zu einem `b`.
+Bei der dritten Alternative von `B` kommen ein `a` sowie zwei `B` hinzu.
+Die Ableitung `S -> a B -> a a B B` halt 2 `a` und 2 `B` und wir wissen bereits, dass jedes `B` in genau ein `B` terminiert oder es geschieht wieder die gleiche Ableitung von `B -> a B B`, wodurch effektiv nur 1 `a` und 1 `B` hinzukommen.
+Wenn schlussendlich alle `B` in `b` abgeleitet werden, gibt es gleich viele `a` wie `b`.
+Das gleiche gilt auch für die Ableitung `B -> b S`, da wie bei der ersten Alternative ein weiteres `B` mit `b` ersetzt wird und ein weiterer Satz `S` dazukommt, der später auch wieder in gleich viele `a` und `B` abgeleitet werden kann und jedes `B` wieder in ein `b` abgeleitet wird oder in ein `b` und ein `S`.
 Das gleiche gilt auch in die andere Richtung `S -> a B`, da die Regeln im NTSymbol `B` nur `b` und `A` mit `a` und `B` getauscht haben.
