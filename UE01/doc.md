@@ -15,8 +15,6 @@ shortest:
 
 ## c)
 
-
-
 Direkt rekursiv: 
 * `DataDeclRest`: links
 * `DataNameList`: rechts
@@ -41,7 +39,6 @@ DataNameList -> DataName | DataName `","` DataNameList .
 DataName -> id | DataDoList .
 
 DataValueList -> DataValue | DataValueList `","` DataValue .
-
 
 DataValue -> OptSign num | str | id 
 * | num `"*"` id 
@@ -80,7 +77,7 @@ Für diesen Satz gib es nur einen Syntaxbaum, da es bei jeder Regel nur eine Alt
 
 ## Regelsystem
 
-S -> OptSign LeadingDigit MiddleDigits UnevenNaturalDigit | OptSign UnevenNaturalDigit . // man könnte auch OptSign weglassen und dafür 4 weitere Optionen im NT "S" hinzufügen
+S -> OptSign LeadingDigit MiddleDigits UnevenNaturalDigit | OptSign UnevenNaturalDigit . // man könnte auch OptSign weglassen und dafür 4 weitere Alternativen in "S" hinzufügen
 
 OptSign -> ε | + | - .
 
@@ -94,10 +91,6 @@ LeadingDigit -> UnevenNaturalDigit | 2 | 4 | 6 | 8 .
 
 S = \[ + | - \] \[ (1|2|3|4|5|6|7|8|9) { (0|1|2|3|4|5|6|7|8|9) } \] (1|3|5|7|9) . 
 
-<div style="page-break-after: always; visibility: hidden"> 
-\pagebreak 
-</div>
-
 # 3. Oo-Implementierung von Grammatiken
 
 No changes made to existing code. I used C++20.
@@ -106,11 +99,9 @@ No changes made to existing code. I used C++20.
 
 ### main.cpp
 
-![](imgs/main1.PNG)
+(next page)
 
-<div style="page-break-after: always; visibility: hidden"> 
-\pagebreak 
-</div>
+![](imgs/main1.PNG)
 
 ### Testcode:
 
@@ -126,19 +117,15 @@ No changes made to existing code. I used C++20.
 
 ![](imgs/main2.PNG)
 
-<div style="page-break-after: always; visibility: hidden"> 
-\pagebreak 
-</div>
-
 ### Language.h
+
+(next page)
 
 ![](imgs/language_h.PNG)
 
-<div style="page-break-after: always; visibility: hidden"> 
-\pagebreak 
-</div>
-
 ### Language.cpp
+
+(next page)
 
 ![](imgs/language_cpp.PNG)
 

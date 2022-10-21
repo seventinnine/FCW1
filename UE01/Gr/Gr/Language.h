@@ -9,15 +9,16 @@
 #include <vector>
 #include <set>
 #include <iostream>
+#include "ObjectCounter.h"
+#include "SequenceStuff.h"
 
-class Sequence;
-
-class Language {
+class Language :
+	private ObjectCounter<Language> {
 
 	friend std::ostream& operator <<(std::ostream& os, const Language& language);
 
 	private:
-		std::set<Sequence*> sentences{};
+		SequenceSet sentences{};
 		int maxLength;
 
 	public:
@@ -26,10 +27,9 @@ class Language {
 		Sequence& at(int i) const;
 		void addSentence(Sequence* s);
 		bool hasSentence(Sequence* s) const;
-
 };
 
 #endif
 
-// end of GrammarBuilder.h
+// end of Language.h
 //======================================================================

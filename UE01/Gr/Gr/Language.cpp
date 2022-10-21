@@ -32,6 +32,10 @@ Language::Language(int maxLength)
 }
 
 void Language::addSentence(Sequence* s) {
+	if (hasSentence(s)) {
+		delete s;
+		return;
+	}
 	sentences.insert(s);
 }
 
@@ -51,5 +55,5 @@ bool Language::hasSentence(Sequence* s) const {
 	return false;
 }
 
-// end of GrammarBuilder.h
+// end of Language.h
 //======================================================================
