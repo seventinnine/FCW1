@@ -140,8 +140,7 @@ void languageOfRecursive(
         
 
         Sequence* derivedSentence = new Sequence(*currSentence);
-        derivedSentence->removeSymbolAt(i);
-        derivedSentence->append(alternative);
+        derivedSentence->replaceSymbolAt(i, alternative);
 
         languageOfRecursive(language, ntSy, rules, derivedSentence, maxLen);        
     }
