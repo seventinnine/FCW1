@@ -4,9 +4,63 @@
 
 Rechtskanonisch:
 
+`*E*` => 
+
+`- *T*` => 
+
+`- T * *F*` => 
+
+`- T * ( *E* )` => 
+
+`- T * ( E + *T* )` => 
+
+`- T * ( E + T / *F* )` => 
+
+`- T * ( E + *T* / v )` => 
+
+`- T * ( E + *F* / v )` => 
+
+`- T * ( *E* + v / v )` => 
+
+`- T * ( *T* + v / v )` => 
+
+`- T * ( *F* + v / v )` => 
+
+`- *T* * ( v + v / v )` => 
+
+`- *F* * ( v + v / v )` => 
+
+`- v * ( v + v / v )`
 
 Linkskanonisch:
 
+`*E*` => 
+
+`- *T*` => 
+
+`- *T* * F` => 
+
+`- *F* * F` => 
+
+`- v * *F*` => 
+
+`- v * ( *E* )` => 
+
+`- v * ( *E* + T )` => 
+
+`- v * ( *T* + T )` => 
+
+`- v * ( *F* + T )` => 
+
+`- v * ( v + *T* )` => 
+
+`- v * ( v + *T* / F )` => 
+
+`- v * ( v + *F* / F )` => 
+
+`- v * ( v + v / *F* )` => 
+
+`- v * ( v + v / v )`
 
 
 ## b)
@@ -69,7 +123,7 @@ Rechtskanonisch:
 
 Syntaxbaum:
 
-![](imgs/1brechts.PNG)
+![](imgs/1bsmaller.PNG)
 
 Linkskanonisch:
 
@@ -123,15 +177,15 @@ Linkskanonisch:
 
 `E`
 
-![](imgs/1blinks.PNG)
+![](imgs/1bsmaller.PNG)
 
-Die Anzahl der Reduktionen ist bei beiden Varianten gleihc (25 Ableitungen).
+Die Anzahl der Reduktionen ist bei beiden Varianten gleich (24 Reduktionen) und die Syntaxbäume sind ident.
 
 # 2. Mehrdeutigkeit, Beschreibung und Schreibweisen
 
 ## a)
 
-Bei `frac` ist die Mehrdeutig, da man auf `n` kommen kann, indem man entweder die 1. Alternative verwendet, oder die 2. Alternative und dann `frac` durch `ε`.
+Bei der Regel `frac` liegt die Mehrdeutigkeit, da man auf `n` kommen kann, indem man entweder die 1. Alternative verwendet, oder die 2. Alternative und dann das dazukommende `frac` ein `ε` ableitet.
 
 Beispiel: `6.9`
 
@@ -144,7 +198,7 @@ Beispiel: `6.9`
 | => `ε 6 . 9` | => `ε 6 . ε n`    | 
 |              | => `ε 6 . 9`      | 
 
-Änderung: `frac -> n | frac n | ε ` auf `frac -> frac n | ε `, rest bleibt gleich.
+Änderung: `frac -> n | frac n | ε .` auf `frac -> frac n | ε .`, der Rest bleibt gleich.
 
 ## b) Äquivalänte, eindeutige Grammatik
 
@@ -168,24 +222,27 @@ Möglichst wenige Regeln:
 
 Sätze:
 
-ε
+* ε
+* ab
+* ab(ab)*
+* bb
+* bb(b)*
 
-ab
+(oder man verwendet die Impl. aus Übung 1):
 
-abababababab(ab)...
-
-bb
-
-bbbbbbb(b)...
+![](imgs/xd.PNG)
 
 `S -> A b | B b | ε .`
+
 `A -> a | C a .`
+
 `C -> A b .`
+
 `B -> b | B b .`
 
 ## b)
 
-`ab(ab)∗ + b(b)* + ε` oder besser `(ab)* + (b)*` (erspaart das `ε`)
+`ab(ab)∗ + bb(b)* + ε` oder besser `(ab)* + (b)*` (erspaart das `ε`)
 
 
 # 4. Bezeichner in der Programmiersprache Ada
@@ -219,7 +276,7 @@ Unix:
 ## a)
 
 ```
-digraph non_deteministic_finite_state_machine {
+digraph non_deterministic_finite_state_machine {
 	fontname="Helvetica,Arial,sans-serif"
 	node [fontname="Helvetica,Arial,sans-serif"]
 	edge [fontname="Helvetica,Arial,sans-serif"]
@@ -236,7 +293,6 @@ digraph non_deteministic_finite_state_machine {
 	C -> B [label = "a"]
 	D -> E [label = "a"]
 	E -> D [label = "b"]
-	
 }
 ```
 
@@ -254,7 +310,7 @@ digraph non_deteministic_finite_state_machine {
 | o {A, B}    | {A}         | {C}         |
 
 ```
-digraph deteministic_finite_state_machine {
+digraph deterministic_finite_state_machine {
 	fontname="Helvetica,Arial,sans-serif"
 	node [fontname="Helvetica,Arial,sans-serif"]
 	edge [fontname="Helvetica,Arial,sans-serif"]
@@ -272,7 +328,6 @@ digraph deteministic_finite_state_machine {
 	C -> B [label = "a"]
 	D -> E [label = "a"]
 	E -> D [label = "b"]
-	
 }
 ```
 
@@ -280,7 +335,54 @@ digraph deteministic_finite_state_machine {
 
 ## b)
 
-0 anhängen => *2
-1 anhängen => *2 + 1
+Erläuterung: 
 
+Ich habe mir angesehen was mit der Teilbarkeit von Binärzahlen passiert, wenn man eine 1 oder 0 anhängt bzw. wie Binärzahlen dividiert durch 3 in andere Restklassen wandern.
 
+Wenn man eine "0" anhängt, wird eine Binärzahl verdoppelt. Der Rest bei der Division durch 3 bleibt gleich.
+Wenn man eine "1" anhängt, wird eine Binärzahl verdoppelt und dann inkrementiert. Hat die Binärzahl diviert durch 3 die Restklasse 2, dann bleibt sie nach dieser Operation in dieser Restklasse.
+
+Wenn die Zahl bereits durch 3 Teilbar ist und man hängt
+* 0 an, dann bleibt die Zahl durch 3 Teilbar => Restklasse 0. Man kann also beliebig viele 0er anhängen.
+* 1 an, ergibt sich ein Rest von 1 => Restklasse 1
+
+Wenn die Zahl geteilt durch 3 einen Rest von 1 hat und man hängt
+* 0 an, dann ergibt sich ein Rest von 2 => Restklasse 2
+* 1 an, dann ergibt sich ein Rest von 2r + 1 == 3 == 0 => Zahl ist durch 3 Teilbar => Restklasse 0
+
+Wenn die Zahl geteilt durch 3 einen Rest von 2 hat und man hängt
+* 0 an, dann ergibt sich ein Rest von 4 => Restklasse 1
+* 1 an, dann ergibt sich ein Rest von 2r + 1 == 8 => Restklasse 2. Man kann also beliebig viele 1er anhängen.
+
+Nach diesem Schema wurde der Automat gebaut. Die Namen der Zustände entsprechen den Restklassen.
+
+```
+digraph deterministic_finite_state_machine {
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	rankdir=LR;
+	node [shape = doublecircle]; S R0;
+	node [shape = circle];
+	
+	S -> R0 [label = "0"]
+	S -> R1 [label = "1"]
+	R0 -> R0 [label = "0"]
+	R0 -> R1 [label = "1"]
+	R1 -> R2 [label = "0"]
+	R2 -> R2 [label = "1"]
+	R2 -> R1 [label = "0"]
+	R1 -> R0 [label = "1"]
+}
+```
+
+|             | 0           | 1           |
+| ----------- | ----------- | ----------- |
+| -> S        | {R0}        | {R1}        |
+| o R0        | {R0}        | {R1}        |
+| R1          | {R2}        | {R0}        |
+| R2          | {R1}        | {R2}        |
+
+Anmerkung: man braucht das `S` für den Start, da der Automat sonst eine Binärzahl ohne Zeichen erlauben würde. (glaube ich?)
+
+![](imgs/5.PNG)
