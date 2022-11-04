@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>doc.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="1-kanonische-ableitung-und-reduktion">1. Kanonische Ableitung und Reduktion</h1>
+<h2 id="a">a)</h2>
+<p>Rechtskanonisch:</p>
+<p><code>*E*</code> =&gt;</p>
+<p><code>- *T*</code> =&gt;</p>
+<p><code>- T * *F*</code> =&gt;</p>
+<p><code>- T * ( *E* )</code> =&gt;</p>
+<p><code>- T * ( E + *T* )</code> =&gt;</p>
+<p><code>- T * ( E + T / *F* )</code> =&gt;</p>
+<p><code>- T * ( E + *T* / v )</code> =&gt;</p>
+<p><code>- T * ( E + *F* / v )</code> =&gt;</p>
+<p><code>- T * ( *E* + v / v )</code> =&gt;</p>
+<p><code>- T * ( *T* + v / v )</code> =&gt;</p>
+<p><code>- T * ( *F* + v / v )</code> =&gt;</p>
+<p><code>- *T* * ( v + v / v )</code> =&gt;</p>
+<p><code>- *F* * ( v + v / v )</code> =&gt;</p>
+<p><code>- v * ( v + v / v )</code></p>
+<p>Linkskanonisch:</p>
+<p><code>*E*</code> =&gt;</p>
+<p><code>- *T*</code> =&gt;</p>
+<p><code>- *T* * F</code> =&gt;</p>
+<p><code>- *F* * F</code> =&gt;</p>
+<p><code>- v * *F*</code> =&gt;</p>
+<p><code>- v * ( *E* )</code> =&gt;</p>
+<p><code>- v * ( *E* + T )</code> =&gt;</p>
+<p><code>- v * ( *T* + T )</code> =&gt;</p>
+<p><code>- v * ( *F* + T )</code> =&gt;</p>
+<p><code>- v * ( v + *T* )</code> =&gt;</p>
+<p><code>- v * ( v + *T* / F )</code> =&gt;</p>
+<p><code>- v * ( v + *F* / F )</code> =&gt;</p>
+<p><code>- v * ( v + v / *F* )</code> =&gt;</p>
+<p><code>- v * ( v + v / v )</code></p>
+<h2 id="b">b)</h2>
+<p>Rechtskanonisch:</p>
+<p><code>( ( v + v ) * v / v ) – ( v / *v* )</code> =&gt;</p>
+<p><s><code>( ( v + v ) * v / v ) – ( v / *F* )</code> =&gt;</s></p>
+<p><s><code>( ( v + v ) * v / v ) – ( F / T )</code> =&gt;</s></p>
+<p><code>( ( v + v ) * v / v ) – ( *v* / F )</code> =&gt;</p>
+<p><code>( ( v + v ) * v / v ) – ( *F* / F )</code> =&gt;</p>
+<p><code>( ( v + v ) * v / v ) – ( *T / F* )</code> =&gt;</p>
+<p><code>( ( v + v ) * v / v ) – ( *T* )</code> =&gt;</p>
+<p><code>( ( v + v ) * v / v ) – *( E )*</code> =&gt;</p>
+<p><code>( ( v + v ) * v / v ) – *F*</code> =&gt;</p>
+<p><code>( ( v + v ) * v / *v* ) – T</code> =&gt;</p>
+<p><code>( ( v + v ) * *v* / F ) – T</code> =&gt;</p>
+<p><code>( ( v + *v* ) * F / F ) – T</code> =&gt;</p>
+<p><code>( ( v + *F* ) * F / F ) – T</code> =&gt;</p>
+<p><code>( ( *v* + T ) * F / F ) – T</code> =&gt;</p>
+<p><code>( ( *F* + T ) * F / F ) – T</code> =&gt;</p>
+<p><code>( ( *T* + T ) * F / F ) – T</code> =&gt;</p>
+<p><code>( ( *E + T* ) * F / F ) – T</code> =&gt;</p>
+<p><code>( *( E )* * F / F ) – T</code> =&gt;</p>
+<p><code>( *F* * F / F ) – T</code> =&gt;</p>
+<p><code>( *T * F* / F ) – T</code> =&gt;</p>
+<p><code>( *T / F* ) – T</code> =&gt;</p>
+<p><code>( *T* ) – T</code> =&gt;</p>
+<p><code>*( E )* – T</code> =&gt;</p>
+<p><code>*F* – T</code> =&gt;</p>
+<p><code>*T* – T</code> =&gt;</p>
+<p><code>*E – T*</code> =&gt;</p>
+<p><code>E</code></p>
+<p>Syntaxbaum:</p>
+<p><img src="file:///c:/Users/Stefan/Documents/Studium/Master/1. Semester/FCW1/UE/UE02/imgs/1bsmaller.PNG" alt=""></p>
+<p>Linkskanonisch:</p>
+<p><code>( ( *v* + v ) * v / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( ( *F* + v ) * v / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( ( *T* + v ) * v / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( ( E + *v* ) * v / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( ( E + *F* ) * v / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( ( *E + T* ) * v / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( *( E )* * v / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( *F* * v / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( T * *v* / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( *T * F* / v ) – ( v / v )</code> =&gt;</p>
+<p><code>( T / *v* ) – ( v / v )</code> =&gt;</p>
+<p><code>( *T / F* ) – ( v / v )</code> =&gt;</p>
+<p><code>( *T* ) – ( v / v )</code> =&gt;</p>
+<p><code>*( E )* – ( v / v )</code> =&gt;</p>
+<p><code>*F* – ( v / v )</code> =&gt;</p>
+<p><code>*T* – ( v / v )</code> =&gt;</p>
+<p><code>E – ( *v* / v )</code> =&gt;</p>
+<p><code>E – ( *F* / v )</code> =&gt;</p>
+<p><code>E – ( T / *v* )</code> =&gt;</p>
+<p><code>E – ( *T / F* )</code> =&gt;</p>
+<p><code>E – ( *T* )</code> =&gt;</p>
+<p><code>E – *( E )*</code> =&gt;</p>
+<p><code>E – *F*</code> =&gt;</p>
+<p><code>*E – T*</code> =&gt;</p>
+<p><code>E</code></p>
+<p><img src="file:///c:/Users/Stefan/Documents/Studium/Master/1. Semester/FCW1/UE/UE02/imgs/1bsmaller.PNG" alt=""></p>
+<p>Die Anzahl der Reduktionen ist bei beiden Varianten gleich (24 Reduktionen) und die Syntaxbäume sind ident.</p>
+<h1 id="2-mehrdeutigkeit-beschreibung-und-schreibweisen">2. Mehrdeutigkeit, Beschreibung und Schreibweisen</h1>
+<h2 id="a">a)</h2>
+<p>Bei der Regel <code>frac</code> liegt die Mehrdeutigkeit, da man auf <code>n</code> kommen kann, indem man entweder die 1. Alternative verwendet, oder die 2. Alternative und dann das dazukommende <code>frac</code> ein <code>ε</code> ableitet.</p>
+<p>Beispiel: <code>6.9</code></p>
+<p><code>real</code> =&gt; <code>mant</code> =&gt; <code>sign int . frac</code> =&gt; <code>ε int . frac</code> =&gt; <code>ε n . frac</code></p>
+<table>
+<thead>
+<tr>
+<th>option 1</th>
+<th>option 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>=&gt; <code>ε n . n</code></td>
+<td>=&gt; <code>ε n . frac n</code></td>
+</tr>
+<tr>
+<td>=&gt; <code>ε 6 . n</code></td>
+<td>=&gt; <code>ε 6 . frac n</code></td>
+</tr>
+<tr>
+<td>=&gt; <code>ε 6 . 9</code></td>
+<td>=&gt; <code>ε 6 . ε n</code></td>
+</tr>
+<tr>
+<td></td>
+<td>=&gt; <code>ε 6 . 9</code></td>
+</tr>
+</tbody>
+</table>
+<p>Änderung: <code>frac -&gt; n | frac n | ε .</code> auf <code>frac -&gt; frac n | ε .</code>, der Rest bleibt gleich.</p>
+<h2 id="b-%C3%A4quival%C3%A4nte-eindeutige-grammatik">b) Äquivalänte, eindeutige Grammatik</h2>
+<p>Möglichst wenige Regeln:</p>
+<p><code>G(real):</code></p>
+<p><code>real = ['+'|'-'] (0|...|9) {0|...|9} ['.' {0|...|9} ] ['E' ['+'|'-'] (0|...|9) {0|...|9}] .</code></p>
+<p>&quot;Kürzer&quot;:</p>
+<p><code>real = optSign n {n} ['.' {n} ] ['E' optSign n {n}] .</code></p>
+<p><code>optSign = ['+'|'-'] .</code></p>
+<p><code>n = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 .</code></p>
+<h1 id="3-regul%C3%A4re-grammatiken">3. Reguläre Grammatiken</h1>
+<h2 id="a">a)</h2>
+<p>Sätze:</p>
+<ul>
+<li>ε</li>
+<li>ab</li>
+<li>ab(ab)*</li>
+<li>bb</li>
+<li>bb(b)*</li>
+</ul>
+<p>(oder man verwendet die Impl. aus Übung 1):</p>
+<p><img src="file:///c:/Users/Stefan/Documents/Studium/Master/1. Semester/FCW1/UE/UE02/imgs/xd.PNG" alt=""></p>
+<p><code>S -&gt; A b | B b | ε .</code></p>
+<p><code>A -&gt; a | C a .</code></p>
+<p><code>C -&gt; A b .</code></p>
+<p><code>B -&gt; b | B b .</code></p>
+<h2 id="b">b)</h2>
+<p><code>ab(ab)∗ + bb(b)* + ε</code> oder besser <code>(ab)* + (b)*</code> (erspaart das <code>ε</code>)</p>
+<h1 id="4-bezeichner-in-der-programmiersprache-ada">4. Bezeichner in der Programmiersprache Ada</h1>
+<h2 id="a">a)</h2>
+<p><code>B -&gt; l | l R</code></p>
+<p><code>R -&gt; d | l | '_' U | l R | d R</code></p>
+<p><code>U -&gt; l | d | l R | d R</code></p>
+<h2 id="b">b)</h2>
+<p><code>B -&gt; l | R l | R d</code></p>
+<p><code>R -&gt; U '_' | R l | R d | l</code></p>
+<p><code>U -&gt; R d | R l | l</code></p>
+<h2 id="c">c)</h2>
+<p><code>l ( l + d + '_' l + '_' d)*</code></p>
+<p>Unix:</p>
+<p><code>l(l|d|_l|_d)*</code> =^= <code>l(_?(l|d))*</code> =^= <code>l(_?[ld])*</code></p>
+<h1 id="5-transformation-zwischen-darstellungsformen-regul%C3%A4rer-sprachen">5. Transformation zwischen Darstellungsformen regulärer Sprachen</h1>
+<h2 id="a">a)</h2>
+<pre class="hljs"><code><div>digraph non_deterministic_finite_state_machine {
+	fontname=&quot;Helvetica,Arial,sans-serif&quot;
+	node [fontname=&quot;Helvetica,Arial,sans-serif&quot;]
+	edge [fontname=&quot;Helvetica,Arial,sans-serif&quot;]
+	rankdir=LR;
+	node [shape = doublecircle]; S A C E;
+	node [shape = circle];
+	
+	S -&gt; A [label = &quot;a&quot;]
+	A -&gt; A [label = &quot;a&quot;]
+	S -&gt; B [label = &quot;a&quot;]
+	B -&gt; C [label = &quot;b&quot;]
+	S -&gt; D [label = &quot;b&quot;]
+	C -&gt; D [label = &quot;b&quot;]
+	C -&gt; B [label = &quot;a&quot;]
+	D -&gt; E [label = &quot;a&quot;]
+	E -&gt; D [label = &quot;b&quot;]
+}
+</div></code></pre>
+<p><img src="file:///c:/Users/Stefan/Documents/Studium/Master/1. Semester/FCW1/UE/UE02/imgs/4a.PNG" alt=""></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-&gt; S</td>
+<td>{A, B}</td>
+<td>{D}</td>
+</tr>
+<tr>
+<td>o A</td>
+<td>{A}</td>
+<td>-</td>
+</tr>
+<tr>
+<td>B</td>
+<td>-</td>
+<td>{C}</td>
+</tr>
+<tr>
+<td>o C</td>
+<td>{B}</td>
+<td>{D}</td>
+</tr>
+<tr>
+<td>D</td>
+<td>{E}</td>
+<td>-</td>
+</tr>
+<tr>
+<td>o E</td>
+<td>-</td>
+<td>{D}</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>o {A, B}</td>
+<td>{A}</td>
+<td>{C}</td>
+</tr>
+</tbody>
+</table>
+<pre class="hljs"><code><div>digraph deterministic_finite_state_machine {
+	fontname=&quot;Helvetica,Arial,sans-serif&quot;
+	node [fontname=&quot;Helvetica,Arial,sans-serif&quot;]
+	edge [fontname=&quot;Helvetica,Arial,sans-serif&quot;]
+	rankdir=LR;
+	node [shape = doublecircle]; S A C E AB;
+	node [shape = circle];
+	
+	S -&gt; AB [label = &quot;a&quot;]
+	AB -&gt; A [label = &quot;a&quot;]
+	AB -&gt; C [label = &quot;b&quot;]
+	A -&gt; A [label = &quot;a&quot;]
+	B -&gt; C [label = &quot;b&quot;]
+	S -&gt; D [label = &quot;b&quot;]
+	C -&gt; D [label = &quot;b&quot;]
+	C -&gt; B [label = &quot;a&quot;]
+	D -&gt; E [label = &quot;a&quot;]
+	E -&gt; D [label = &quot;b&quot;]
+}
+</div></code></pre>
+<p><img src="file:///c:/Users/Stefan/Documents/Studium/Master/1. Semester/FCW1/UE/UE02/imgs/4b.PNG" alt=""></p>
+<h2 id="b">b)</h2>
+<p>Erläuterung:</p>
+<p>Ich habe mir angesehen was mit der Teilbarkeit von Binärzahlen passiert, wenn man eine 1 oder 0 anhängt bzw. wie Binärzahlen dividiert durch 3 in andere Restklassen wandern.</p>
+<p>Wenn man eine &quot;0&quot; anhängt, wird eine Binärzahl verdoppelt. Der Rest bei der Division durch 3 bleibt gleich.
+Wenn man eine &quot;1&quot; anhängt, wird eine Binärzahl verdoppelt und dann inkrementiert. Hat die Binärzahl diviert durch 3 die Restklasse 2, dann bleibt sie nach dieser Operation in dieser Restklasse.</p>
+<p>Wenn die Zahl bereits durch 3 Teilbar ist und man hängt</p>
+<ul>
+<li>0 an, dann bleibt die Zahl durch 3 Teilbar =&gt; Restklasse 0. Man kann also beliebig viele 0er anhängen.</li>
+<li>1 an, ergibt sich ein Rest von 1 =&gt; Restklasse 1</li>
+</ul>
+<p>Wenn die Zahl geteilt durch 3 einen Rest von 1 hat und man hängt</p>
+<ul>
+<li>0 an, dann ergibt sich ein Rest von 2 =&gt; Restklasse 2</li>
+<li>1 an, dann ergibt sich ein Rest von 2r + 1 == 3 == 0 =&gt; Zahl ist durch 3 Teilbar =&gt; Restklasse 0</li>
+</ul>
+<p>Wenn die Zahl geteilt durch 3 einen Rest von 2 hat und man hängt</p>
+<ul>
+<li>0 an, dann ergibt sich ein Rest von 4 =&gt; Restklasse 1</li>
+<li>1 an, dann ergibt sich ein Rest von 2r + 1 == 8 =&gt; Restklasse 2. Man kann also beliebig viele 1er anhängen.</li>
+</ul>
+<p>Nach diesem Schema wurde der Automat gebaut. Die Namen der Zustände entsprechen den Restklassen.</p>
+<pre class="hljs"><code><div>digraph deterministic_finite_state_machine {
+	fontname=&quot;Helvetica,Arial,sans-serif&quot;
+	node [fontname=&quot;Helvetica,Arial,sans-serif&quot;]
+	edge [fontname=&quot;Helvetica,Arial,sans-serif&quot;]
+	rankdir=LR;
+	node [shape = doublecircle]; S R0;
+	node [shape = circle];
+	
+	S -&gt; R0 [label = &quot;0&quot;]
+	S -&gt; R1 [label = &quot;1&quot;]
+	R0 -&gt; R0 [label = &quot;0&quot;]
+	R0 -&gt; R1 [label = &quot;1&quot;]
+	R1 -&gt; R2 [label = &quot;0&quot;]
+	R2 -&gt; R2 [label = &quot;1&quot;]
+	R2 -&gt; R1 [label = &quot;0&quot;]
+	R1 -&gt; R0 [label = &quot;1&quot;]
+}
+</div></code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>0</th>
+<th>1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-&gt; S</td>
+<td>{R0}</td>
+<td>{R1}</td>
+</tr>
+<tr>
+<td>o R0</td>
+<td>{R0}</td>
+<td>{R1}</td>
+</tr>
+<tr>
+<td>R1</td>
+<td>{R2}</td>
+<td>{R0}</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>{R1}</td>
+<td>{R2}</td>
+</tr>
+</tbody>
+</table>
+<p>Anmerkung: man braucht das <code>S</code> für den Start, da der Automat sonst eine Binärzahl ohne Zeichen erlauben würde. (glaube ich?)</p>
+<p><img src="file:///c:/Users/Stefan/Documents/Studium/Master/1. Semester/FCW1/UE/UE02/imgs/5.PNG" alt=""></p>
+
+</body>
+</html>

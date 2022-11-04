@@ -298,11 +298,11 @@ digraph non_deterministic_finite_state_machine {
 
 ![](imgs/4a.PNG)
 
-|             | 0           | 1           |
+|             | a           | b           |
 | ----------- | ----------- | ----------- |
 | -> S        | {A, B}      | {D}         |
 | o A         | {A}         | -           |
-| B           | {C}         | -           |
+| B           | -           | {C}         |
 | o C         | {B}         | {D}         |
 | D           | {E}         | -           |
 | o E         | -           | {D}         |
