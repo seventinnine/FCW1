@@ -21,6 +21,7 @@
 class FA;    // forward declarations for ...
 class DFA;   //    ... the return types in ...
 class NFA;   //    ... the build methods below
+class MooreDFA;   //    ... the build methods below
 
 class FABuilder final // no public base class
                /*OC+*/ : private ObjectCounter<FABuilder> /*+OC*/ {
@@ -34,6 +35,8 @@ class FABuilder final // no public base class
     Delta<StateSet> delta; // type for NFA, transformed to Delta<State> for DFA
     State           s1;    // start state, an element of S
     StateSet        F;     // set of final states, a subset of S
+
+    map<State, char> mooreLambda; // output function for Moore automaton
 
     void checkStates() const;
 
@@ -57,6 +60,7 @@ class FABuilder final // no public base class
     // following methods for programmatical init. provide a fluent interface:
 
     FABuilder &setStartState (const State    &s);
+    FABuilder &setSetMooreLambda (const map<State, char> mooreLambda);
 
     FABuilder &addFinalState (const State    &s);
     FABuilder &addFinalStates(const StateSet &sSet);
@@ -76,6 +80,7 @@ class FABuilder final // no public base class
      FA *buildFA()  const;  // build DFA when possible, otherwise build NFA
     DFA *buildDFA() const;  // requires: representsDFA() == true
     NFA *buildNFA() const;  // always works
+    MooreDFA *buildMooreDFA() const;  // always works
 
     // finally, a clear method that allows reuse or the builder:
 

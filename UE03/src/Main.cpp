@@ -36,10 +36,34 @@ using namespace std;
   #include "FA.cpp"
   #include "DFA.cpp"
   #include "NFA.cpp"
+  #include "MooreDFA.cpp"
   #include "FABuilder.cpp"
   #include "GraphVizUtil.cpp"
+  #include "Timer.cpp"
+  #include "SymbolStuff.cpp"
+  #include "SequenceStuff.cpp"
+  #include "GrammarBasics.cpp"
+  #include "GrammarBuilder.cpp"
+  #include "Grammar.cpp"
 #endif
 
+FA *faOf(const Grammar *g) 
+{
+  FABuilder fab{};
+  // get ntSy where current ntSy appears on the right
+  for (auto [ntSy, alternatives] : g->rules) {
+    bool alreadyMarkedAsEndState = false;
+    for (auto alternative : alternatives) {
+      fab.addTransition();
+      // has NT following?
+      if (alternative->size() == 1 && !alreadyMarkedAsEndState) {
+        fab.addFinalState(ntSy->name);
+        alreadyMarkedAsEndState = true;
+      }
+    }
+  }
+  return fab.buildNFA();
+}
 
 int main(int argc, char *argv[]) {
 
@@ -56,7 +80,6 @@ int main(int argc, char *argv[]) {
   cout << endl;
 
 try {
-
 
   cout << "1. DFA" << endl;
   cout << "------" << endl;
@@ -84,20 +107,66 @@ try {
       throw runtime_error("invalid buildCase");
   } // switch
 
-  dfa = fab->buildDFA();
-  delete fab;
+  #pragma region HUE1
+  
 
-  cout << "dfa:" << endl << *dfa;
+
+  #pragma endregion HUE1
+
+  #pragma region HUE2A
+
+  cout << "2a). DFA" << endl;
+  cout << "------" << endl;
+  cout << endl;
+
+  fab = new FABuilder(); // example from FS slides p. 47
+  fab->setStartState("B").
+    addFinalState("R").
+    addTransition("B", 'b', "R").
+    addTransition("R", 'b', "R").
+    addTransition("R", 'z', "R");
+
+  dfa = fab->buildDFA();
   vizualizeFA("dfa", dfa);
 
   cout << "dfa->accepts(\"bzb\") = " << dfa->accepts("bzb") << endl;
   cout << "dfa->accepts(\"z\")   = " << dfa->accepts("z")   << endl;
   cout << endl;
 
-  cout << "type CR to continue ... ";
-  getchar();
+  #pragma endregion HUE2A
+
+  #pragma region HUE2B
+
+  cout << "2b). DFA" << endl;
+  cout << "------" << endl;
   cout << endl;
 
+  fab = new FABuilder(); // example from FS slides p. 47
+  fab->setStartState("S").
+    addFinalState("B").
+    addFinalState("Z").
+    addTransition("S", 'b', "B").
+    addTransition("B", 'b', "B").
+    addTransition("B", 'z', "Z").
+    addTransition("Z", 'z', "Z").
+    addTransition("Z", 'b', "B").
+    setSetMooreLambda({
+      {"S", ' '},
+      {"B", 'c'}, 
+      {"Z", 'd'}
+    });
+
+  MooreDFA* mooreDfa = fab->buildMooreDFA();
+
+  cout << "mooreDfa->accepts(\"bzzb\") = " << mooreDfa->accepts("bzzb") << endl;
+  cout << "mooreDfa->accepts(\"zzb\") = " << mooreDfa->accepts("zzb") << endl;
+
+  vizualizeFA("mooreDfa", mooreDfa);
+  
+  delete mooreDfa;
+  delete fab;
+
+  #pragma endregion HUE2B
 
   cout << "2. NFA" << endl;
   cout << "------" << endl;

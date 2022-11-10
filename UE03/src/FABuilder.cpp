@@ -21,6 +21,7 @@ using namespace std;
 #include "FA.h"
 #include "DFA.h"
 #include "NFA.h"
+#include "MooreDFA.h"
 #include "FABuilder.h"
 
 
@@ -201,6 +202,12 @@ FABuilder &FABuilder::addTransition(
   return *this;
 } // FABuilder::addTransition
 
+FABuilder &FABuilder::setSetMooreLambda(const map<State, char> mooreLambda) {
+  // optionally check if all provided states in mooreLambda are already defined
+  this->mooreLambda = mooreLambda;
+  return *this;
+}
+
 bool FABuilder::representsDFA() const {
   for (const auto &t: delta.transitions())
     if ( (t.tSy == eps) || // epsilon transition
@@ -230,6 +237,12 @@ NFA *FABuilder::buildNFA() const {
   return new NFA(S, V, s1, F, delta);
 } // FABuilder::buildNFA
 
+MooreDFA *FABuilder::buildMooreDFA() const {
+  if (!representsDFA())
+    throw domain_error("cannot build MooreDFA, builder's delta represents a NFA");
+  checkStates();
+  return new MooreDFA(S, V, s1, F, dDeltaOf(delta), mooreLambda);
+} // FABuilder::buildMooreDFA
 
 void FABuilder::clear() {
   S.clear();
