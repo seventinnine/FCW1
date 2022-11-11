@@ -112,7 +112,7 @@ Grammar* newEpsilonFreeGrammarOf(const Grammar* g) {
 
     return gb.buildGrammar();
 }
-
+/*
 FA *faOf(const Grammar *g) 
 {
   bool deleteG = false;
@@ -124,7 +124,7 @@ FA *faOf(const Grammar *g)
   }
 
   // set final states
-  if (deleteG /* means that g has S' => is end state*/) {
+  if (deleteG) { // means that g has S' => is end state
     fab.addFinalState(g->root->name);
   }
   fab.setStartState(g->root->name);
@@ -150,6 +150,43 @@ FA *faOf(const Grammar *g)
   auto res = dfa->minimalOf();
   delete nfa; delete dfa;
   return res;
+}
+
+*/
+
+FA *faOf(const Grammar *g) 
+{
+  FABuilder fab{};
+  // start state is root of grammar
+  fab.setStartState(g->root->name);
+
+  // go over each rule in grammar
+  for (auto [ntSy, alternatives] : g->rules) {
+    // determine the end states for the TSymbol of the current alternative
+    // if we have A -> a | a B, then end state of the alternative 'a' is B
+    map<char, string> endStateForTS{};
+    for (auto alternative : alternatives) {
+      if (alternative->size() == 2) {
+        endStateForTS[alternative->at(0)->name[0]] = alternative->at(1)->name;
+        fab.addFinalState(alternative->at(1)->name);
+      }
+    }
+
+    // go over each alternative
+    for (auto alternative : alternatives) {
+      char ts = alternative->at(0)->name[0];
+      
+      if (alternative->hasTerminalsOnly() == 1) { // no ntSy in alternative => edge 
+                                      // to end state for that tape symbol
+                                      // with symbol before at pos 0
+        fab.addTransition(ntSy->name, ts, endStateForTS[ts]);
+      } else { // ntSy has edge to ntSy in alternative with symbol before at pos 0
+        fab.addTransition(ntSy->name, ts, alternative->at(1)->name);
+      }
+    }
+  }
+
+  return fab.buildNFA();
 }
 
 Grammar *grammarOf(const FA *fa) {
@@ -208,7 +245,7 @@ try {
 
   #pragma region HUE1
   
-  cout << "1). faOf" << endl;
+  cout << "1.a) faOf" << endl;
   cout << "------" << endl;
   cout << endl;
 
@@ -220,14 +257,23 @@ try {
 
   vizualizeFA("faOfG", faOfG);
 
+  cout << "1.b) grammarOf" << endl;
+  cout << "------" << endl;
+  cout << endl;
+
+  Grammar* gOfFaOfG = grammarOf(faOfG);
+
+  std::cout << *gOfFaOfG;
+
   delete g;
   delete faOfG;
+  delete gOfFaOfG;
 
   #pragma endregion HUE1
 
   #pragma region HUE2A
 
-  cout << "2a). DFA" << endl;
+  cout << "2.a) DFA" << endl;
   cout << "------" << endl;
   cout << endl;
 
@@ -249,7 +295,7 @@ try {
 
   #pragma region HUE2B
 
-  cout << "2b). MooreDFA" << endl;
+  cout << "2.b) MooreDFA" << endl;
   cout << "------" << endl;
   cout << endl;
 
