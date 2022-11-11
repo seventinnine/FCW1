@@ -66,12 +66,66 @@ Tests:
 
 # 4. Kellerautomat und erweiterter Kellerautomat
 
-für jede regel übeführung machen (in VO unterlagen nachsehen)
-Arguments: Zustand NT vom stack (liest aber nix vom band) => legt alpha uaf stack in umgekehrter reihenfolge
+## a)
 
-d(Z, e, Declaration) = (Z, VarDeclList VAR) => VarDeclList erstellen
+Declaration     -> VAR | VAR **VarDeclList** .
+
+**VarDeclList     -> VarDecl ";" | VarDecl ";" VarDeclList .**
+
+VarDecl         -> IdentList ":" Type .
+
+IdentList       -> ident | ident "," IdentList .
+
+Type            -> ARRAY "(" number ")" OF TypeIdent | TypeIdent .
+
+TypeIdent       -> INTEGER | BOOLEAN | CHAR .
+
+## b)
+S1:
+
+d(Z, e, Declaration) = (Z, VAR)
+
+d(Z, e, Declaration) = (Z, VarDeclList VAR)
+
+d(Z, e, VarDeclList) = (Z, ";" VarDecl)
+
+d(Z, e, VarDeclList) = (Z, VarDeclList ";" VarDecl)
+
 d(Z, e, VarDecl) = (Z, Type ":" IdentList)
-...
+
+d(Z, e, IdentList) = (Z, ident)
+
+d(Z, e, IdentList) = (Z, IdentList "," ident)
+
+d(Z, e, Type) = (Z, TypeIdent OF ")" number "(" ARRAY)
+
+d(Z, e, Type) = (Z, TypeIdent)
+
+d(Z, e, TypeIdent) = (Z, INTEGER)
+
+d(Z, e, TypeIdent) = (Z, BOOLEAN)
+
+d(Z, e, TypeIdent) = (Z, CHAR)
+
+S2:
+
+d(Z, VAR, VAR) = (Z, e)
+
+d(Z, ident, ident) = (Z, e)
+
+d(Z, ARRAY, ARRAY) = (Z, e)
+
+d(Z, number, number) = (Z, e)
+
+d(Z, OF, OF) = (Z, e)
+
+d(Z, INTEGER, INTEGER) = (Z, e)
+
+d(Z, BOOLEAN, BOOLEAN) = (Z, e)
+
+d(Z, CHAR, CHAR) = (Z, e)
+
+
 
 d(Z, e, TypeIdent) = (Z, INTEGER)
 d(Z, e, TypeIdent) = (Z, BOOLEAN)
