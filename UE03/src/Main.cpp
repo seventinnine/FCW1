@@ -47,22 +47,117 @@ using namespace std;
   #include "Grammar.cpp"
 #endif
 
+Grammar* newEpsilonFreeGrammarOf(const Grammar* g) {
+    // step 1
+    VNt deletable = g->deletableNTs();
+
+    // step 2
+    // use symbolpool to get instances by name 
+    // (symbols from initial creation are still stored in SymbolPoolData)
+    SymbolPool sp{};
+    GrammarBuilder gb{ g->root }; // reuse old root for now
+
+    // for each rule
+    // c++20 structured binding
+    for (const auto& [nt, sequenceSet] : g->rules)
+    {
+        // iterate over old sequence set
+        for (const Sequence* seq : sequenceSet)
+        {
+            // begone epsilon
+            if (seq->isEpsilon()) continue;
+
+            // add copy
+            gb.addRule(nt, new Sequence(*seq));
+
+            // evaluate which indices of current sequence are deletable NTs
+            std::vector<int> deletableNTindices{};
+            for (int i = 0; i < seq->size(); i++) {
+                Symbol* currSy = seq->at(i);
+                if (currSy->isNT() &&
+                    deletable.contains(dynamic_cast<NTSymbol*>(currSy))) {
+                    deletableNTindices.push_back(i);
+                }
+            }
+
+            // add the current sequence with every possible combination
+            // of not including NTs in deletableNTindices
+            // 2^n(-1) iterations
+            for (int i = 0; i < 1 << deletableNTindices.size(); ++i) {
+                Sequence* copy = new Sequence(*seq);
+                for (int j = deletableNTindices.size() - 1; j >= 0; --j) {
+                    // generate all possible combinations 
+                    // of indices in deletableNTindices
+                    int symbolsRemoved = 0;
+                    if (((1 << j) & i) > 0) {
+                        copy->removeSymbolAt(deletableNTindices[j - symbolsRemoved]);
+                        symbolsRemoved += 1;
+                    }
+                }
+                // don't add empty alternatives
+                // also duplicates are ignored
+                if (!copy->isEpsilon()) gb.addRule(nt, copy);
+                else delete copy;   
+            }
+        }
+    }
+
+    // step 3
+    if (deletable.contains(g->root)) {
+        // add S' (or rather name of original root node + ')
+        NTSymbol* newRoot = sp.ntSymbol(g->root->name + "'");
+        gb.addRule(newRoot, { new Sequence({g->root}), new Sequence() /* eps */ });
+        gb.setNewRoot(newRoot);
+    }
+
+    return gb.buildGrammar();
+}
+
 FA *faOf(const Grammar *g) 
 {
+  bool deleteG = false;
   FABuilder fab{};
-  // get ntSy where current ntSy appears on the right
+  // ensure g is epsilon-free
+  if (!g->isEpsilonFree()) {
+    deleteG = true;
+    g = newEpsilonFreeGrammarOf(g);
+  }
+
+  // set final states
+  if (deleteG /* means that g has S' => is end state*/) {
+    fab.addFinalState(g->root->name);
+  }
+  fab.setStartState(g->root->name);
+  // generic end state "END" for alternatives without NT
+  fab.addFinalState("END");
+
   for (auto [ntSy, alternatives] : g->rules) {
-    bool alreadyMarkedAsEndState = false;
     for (auto alternative : alternatives) {
-      fab.addTransition();
-      // has NT following?
-      if (alternative->size() == 1 && !alreadyMarkedAsEndState) {
-        fab.addFinalState(ntSy->name);
-        alreadyMarkedAsEndState = true;
+      // size of alternative can only be 1 or 2 in regular grammar
+      if (alternative->size() == 1) { // no ntSy in alternative => edge to end state with symbol before at pos 0
+        fab.addTransition(ntSy->name, alternative->at(0)->name[0], "END");
+      } else { // ntSy has edge to ntSy in alternative with symbol before at pos 0
+        fab.addTransition(ntSy->name, alternative->at(0)->name[0], alternative->at(1)->name);
       }
     }
   }
+
+  // delete generated epsilon-free grammar
+  if (deleteG) delete g;
+
   return fab.buildNFA();
+}
+
+Grammar *grammarOf(const NFA *nfa) {
+
+  SymbolPool sp{};
+  GrammarBuilder gb{sp.ntSymbol(nfa->s1)};
+
+  for (auto curr : nfa->S) {
+    
+  }
+
+  return gb.buildGrammar();
 }
 
 int main(int argc, char *argv[]) {
@@ -109,7 +204,20 @@ try {
 
   #pragma region HUE1
   
+  cout << "1). faOf" << endl;
+  cout << "------" << endl;
+  cout << endl;
 
+  GrammarBuilder gb{"G(B):           \n\
+                    B -> b | b R     \n\
+                    R -> b | z | b R | z R"};
+  Grammar* g = gb.buildGrammar();
+  FA* faOfG = faOf(g);
+
+  vizualizeFA("faOfG", faOfG);
+
+  delete g;
+  delete faOfG;
 
   #pragma endregion HUE1
 
@@ -137,7 +245,7 @@ try {
 
   #pragma region HUE2B
 
-  cout << "2b). DFA" << endl;
+  cout << "2b). MooreDFA" << endl;
   cout << "------" << endl;
   cout << endl;
 
