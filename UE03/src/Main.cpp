@@ -145,15 +145,19 @@ FA *faOf(const Grammar *g)
   // delete generated epsilon-free grammar
   if (deleteG) delete g;
 
-  return fab.buildNFA();
+  auto nfa = fab.buildNFA();
+  auto dfa = nfa->dfaOf();
+  auto res = dfa->minimalOf();
+  delete nfa; delete dfa;
+  return res;
 }
 
-Grammar *grammarOf(const NFA *nfa) {
+Grammar *grammarOf(const FA *fa) {
 
   SymbolPool sp{};
-  GrammarBuilder gb{sp.ntSymbol(nfa->s1)};
+  GrammarBuilder gb{sp.ntSymbol(fa->s1)};
 
-  for (auto curr : nfa->S) {
+  for (auto curr : fa->S) {
     
   }
 
