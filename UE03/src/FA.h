@@ -36,7 +36,6 @@ class FA {  // abstract base class for DFA and NFA
 
     // used by operator<< and writeToGraphVizFile only
     //   returns StateSet even for DFA, in this case with one element
-    virtual StateSet deltaAt(const State &src, TapeSymbol tSy) const = 0;
 
     // used by operator<< and writeToGraphVizFile only
     std::vector<State> topSortedStates() const; // topological sort
@@ -52,6 +51,8 @@ class FA {  // abstract base class for DFA and NFA
     virtual ~FA() = default;
 
     virtual bool accepts(const Tape &tape) const = 0;
+    // made public
+    virtual StateSet deltaAt(const State &src, TapeSymbol tSy) const = 0;
 
     void genGraphVizFile(const std::string &fileName,
                          const std::string &name = "") const;

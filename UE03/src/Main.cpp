@@ -21,6 +21,7 @@ using namespace std;
 #include "NFA.h"
 #include "FABuilder.h"
 #include "GraphVizUtil.h"
+#include "Stopwatch.hpp"
 
 
 // Activation (1) allows simple builds via command line:
@@ -112,7 +113,7 @@ Grammar* newEpsilonFreeGrammarOf(const Grammar* g) {
 
     return gb.buildGrammar();
 }
-/*
+
 FA *faOf(const Grammar *g) 
 {
   bool deleteG = false;
@@ -145,15 +146,15 @@ FA *faOf(const Grammar *g)
   // delete generated epsilon-free grammar
   if (deleteG) delete g;
 
-  auto nfa = fab.buildNFA();
-  auto dfa = nfa->dfaOf();
-  auto res = dfa->minimalOf();
-  delete nfa; delete dfa;
-  return res;
+  //auto nfa = fab.buildNFA();
+  //auto dfa = nfa->dfaOf();
+  //auto res = dfa->minimalOf();
+  //delete nfa; delete dfa;
+  return fab.buildNFA();
 }
 
-*/
 
+/*
 FA *faOf(const Grammar *g) 
 {
   FABuilder fab{};
@@ -164,22 +165,31 @@ FA *faOf(const Grammar *g)
   for (auto [ntSy, alternatives] : g->rules) {
     // determine the end states for the TSymbol of the current alternative
     // if we have A -> a | a B, then end state of the alternative 'a' is B
+    // but if we have A -> a | a C | a B
     map<char, string> endStateForTS{};
-    for (auto alternative : alternatives) {
+    for (Sequence* alternative : alternatives) {
       if (alternative->size() == 2) {
         endStateForTS[alternative->at(0)->name[0]] = alternative->at(1)->name;
         fab.addFinalState(alternative->at(1)->name);
       }
+      else {
+
+      }
     }
 
     // go over each alternative
-    for (auto alternative : alternatives) {
+    for (Sequence* alternative : alternatives) {
       char ts = alternative->at(0)->name[0];
       
       if (alternative->hasTerminalsOnly() == 1) { // no ntSy in alternative => edge 
                                       // to end state for that tape symbol
                                       // with symbol before at pos 0
-        fab.addTransition(ntSy->name, ts, endStateForTS[ts]);
+        if (endStateForTS[ts] != "") {
+          fab.addTransition(ntSy->name, ts, endStateForTS[ts]);
+        } else {
+          fab.addTransition(ntSy->name, ts, ntSy->name + "'");
+          fab.addFinalState(ntSy->name + "'");
+        }
       } else { // ntSy has edge to ntSy in alternative with symbol before at pos 0
         fab.addTransition(ntSy->name, ts, alternative->at(1)->name);
       }
@@ -188,17 +198,67 @@ FA *faOf(const Grammar *g)
 
   return fab.buildNFA();
 }
-
-Grammar *grammarOf(const FA *fa) {
+*/
+Grammar* grammarOf(const FA* fa) {
 
   SymbolPool sp{};
   GrammarBuilder gb{sp.ntSymbol(fa->s1)};
 
-  for (auto curr : fa->S) {
-    
+  // iterate over each state
+  for (const State& state : fa->S) {
+    // iterate over each tape symbol
+    for (const TapeSymbol& ts : fa->V) {
+      // get all possible transition destinatons from state using tape symbol
+      auto destinations = fa->deltaAt(state, ts);
+      for (const State& dest : destinations) {
+        // add this transition to grammar as alternative
+
+        // takes care of states like E'
+        // if dest does not have any outgoing tape symbols
+        // => ignore in grammar
+        bool hasOutgoing = false;
+        for (const TapeSymbol& ts1 : fa->V) {
+          if (fa->deltaAt(dest, ts1).size() > 0) {
+            hasOutgoing = true;
+          }
+        }
+
+        if (hasOutgoing) {
+          gb.addRule(sp.ntSymbol(state), 
+            new Sequence({
+              sp.tSymbol(string{ts}), 
+              sp.ntSymbol(dest)}
+              )
+          );
+        } else {
+          gb.addRule(sp.ntSymbol(state), 
+            new Sequence({sp.tSymbol(string{ts})})
+          );
+        }         
+
+        // if dest is an end state, also add alternative without dest
+        if (fa->F.contains(dest)) {
+          gb.addRule(sp.ntSymbol(state), 
+            new Sequence(sp.tSymbol(string{ts}))
+          );
+        }
+      }
+    }
+  }
+
+  // if start state is also end state, add epsilon as alternative
+  if (fa->F.contains(fa->s1)) {
+    gb.addRule(sp.ntSymbol(fa->s1), new Sequence());
   }
 
   return gb.buildGrammar();
+}
+
+void TimeAccept(NFA* abc, void (*func)(NFA* abc)) {
+  stopwatch::Stopwatch sw{};
+  sw.start();
+  func(abc);
+  cout << "Elapsed time: " << sw.elapsed<stopwatch::Stopwatch::TimeFormat::MICROSECONDS>() << " micro sec" << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -243,15 +303,19 @@ try {
       throw runtime_error("invalid buildCase");
   } // switch
 
+  delete fab;
+
   #pragma region HUE1
   
   cout << "1.a) faOf" << endl;
   cout << "------" << endl;
   cout << endl;
-
+  
   GrammarBuilder gb{"G(B):           \n\
-                    B -> b | b R     \n\
-                    R -> b | z | b R | z R"};
+                    B -> b | b R | b E    \n\
+                    R -> b | z | b R | z R \n\
+                    E -> e"};
+
   Grammar* g = gb.buildGrammar();
   FA* faOfG = faOf(g);
 
@@ -277,7 +341,7 @@ try {
   cout << "------" << endl;
   cout << endl;
 
-  fab = new FABuilder(); // example from FS slides p. 47
+  fab = new FABuilder();
   fab->setStartState("B").
     addFinalState("R").
     addTransition("B", 'b', "R").
@@ -291,6 +355,8 @@ try {
   cout << "dfa->accepts(\"z\")   = " << dfa->accepts("z")   << endl;
   cout << endl;
 
+  delete fab;
+
   #pragma endregion HUE2A
 
   #pragma region HUE2B
@@ -299,7 +365,7 @@ try {
   cout << "------" << endl;
   cout << endl;
 
-  fab = new FABuilder(); // example from FS slides p. 47
+  fab = new FABuilder();
   fab->setStartState("S").
     addFinalState("B").
     addFinalState("Z").
@@ -326,6 +392,187 @@ try {
 
   #pragma endregion HUE2B
 
+  #pragma region HUE3A
+
+  cout << "3.a)" << endl;
+  cout << "------" << endl;
+  cout << endl;
+
+  fab = new FABuilder();
+  fab->setStartState("S").
+    addFinalState("R").
+    addTransition("S", 'a', "S").
+    addTransition("S", 'b', "S").
+    addTransition("S", 'c', "S").
+    addTransition("S", 'a', "A").
+    addTransition("S", 'b', "B").
+    addTransition("S", 'c', "C").
+    addTransition("A", 'a', "A").
+    addTransition("A", 'b', "A").
+    addTransition("A", 'c', "A").
+    addTransition("B", 'a', "B").
+    addTransition("B", 'b', "B").
+    addTransition("B", 'c', "B").
+    addTransition("C", 'a', "C").
+    addTransition("C", 'b', "C").
+    addTransition("C", 'c', "C").
+    addTransition("A", 'a', "R").
+    addTransition("B", 'b', "R").
+    addTransition("C", 'c', "R");
+
+  NFA* abc = fab->buildNFA();
+  cout << "abc->accepts1(\"cabcabcabcabcc\") = " << abc->accepts1("cabcabcabcabcc") << endl;
+  cout << "abc->accepts2(\"cabcabcabcabcc\") = " << abc->accepts2("cabcabcabcabcc") << endl;
+  cout << "abc->accepts3(\"cabcabcabcabcc\") = " << abc->accepts3("cabcabcabcabcc") << endl;
+
+  cout << "abc->accepts1(\"caaaaaaaaaaaaaaad\") = " << abc->accepts1("caaaaaaaaaaaaaaad") << endl;
+  cout << "abc->accepts2(\"caaaaaaaaaaaaaaad\") = " << abc->accepts2("caaaaaaaaaaaaaaad") << endl;
+  cout << "abc->accepts3(\"caaaaaaaaaaaaaaad\") = " << abc->accepts3("caaaaaaaaaaaaaaad") << endl;
+
+  delete abc;
+  delete fab;
+
+  #pragma endregion HUE3A
+
+  #pragma region HUE3B
+
+  cout << "3.b)" << endl;
+  cout << "------" << endl;
+  cout << endl;
+
+  fab = new FABuilder();
+  fab->setStartState("S").
+    addFinalState("R").
+    addTransition("S", 'a', "S").
+    addTransition("S", 'b', "S").
+    addTransition("S", 'c', "S").
+    addTransition("S", 'a', "A").
+    addTransition("S", 'b', "B").
+    addTransition("S", 'c', "C").
+    addTransition("A", 'a', "A").
+    addTransition("A", 'b', "A").
+    addTransition("A", 'c', "A").
+    addTransition("B", 'a', "B").
+    addTransition("B", 'b', "B").
+    addTransition("B", 'c', "B").
+    addTransition("C", 'a', "C").
+    addTransition("C", 'b', "C").
+    addTransition("C", 'c', "C").
+    addTransition("A", 'a', "R").
+    addTransition("B", 'b', "R").
+    addTransition("C", 'c', "R");
+
+  abc = fab->buildNFA();
+  
+  TimeAccept(abc, [](NFA* abc) {
+    cout << "abc->accepts1(\"cabcabcabcabcc\") = " << abc->accepts1("cabcabcabcabcc") << endl;
+  });
+  TimeAccept(abc, [](NFA* abc) {
+    cout << "abc->accepts2(\"cabcabcabcabcc\") = " << abc->accepts2("cabcabcabcabcc") << endl;
+  });
+  TimeAccept(abc, [](NFA* abc) {
+    cout << "abc->accepts3(\"cabcabcabcabcc\") = " << abc->accepts3("cabcabcabcabcc") << endl;
+  });
+  
+  TimeAccept(abc, [](NFA* abc) {
+    cout << "abc->accepts1(\"caaaaaaaaaaaaaaad\") = " << abc->accepts1("caaaaaaaaaaaaaaad") << endl;
+  });
+  TimeAccept(abc, [](NFA* abc) {
+    cout << "abc->accepts2(\"caaaaaaaaaaaaaaad\") = " << abc->accepts2("caaaaaaaaaaaaaaad") << endl;
+  });
+  TimeAccept(abc, [](NFA* abc) {
+    cout << "abc->accepts3(\"caaaaaaaaaaaaaaad\") = " << abc->accepts3("caaaaaaaaaaaaaaad") << endl;
+  });
+
+  delete abc;
+  delete fab;
+
+  #pragma endregion HUE3B
+
+  #pragma region HUE3C
+
+  cout << "3.b)" << endl;
+  cout << "------" << endl;
+  cout << endl;
+
+  fab = new FABuilder();
+  fab->setStartState("S").
+    addFinalState("R").
+    addTransition("S", 'a', "S").
+    addTransition("S", 'b', "S").
+    addTransition("S", 'c', "S").
+    addTransition("S", 'a', "A").
+    addTransition("S", 'b', "B").
+    addTransition("S", 'c', "C").
+    addTransition("A", 'a', "A").
+    addTransition("A", 'b', "A").
+    addTransition("A", 'c', "A").
+    addTransition("B", 'a', "B").
+    addTransition("B", 'b', "B").
+    addTransition("B", 'c', "B").
+    addTransition("C", 'a', "C").
+    addTransition("C", 'b', "C").
+    addTransition("C", 'c', "C").
+    addTransition("A", 'a', "R").
+    addTransition("B", 'b', "R").
+    addTransition("C", 'c', "R");
+
+  abc = fab->buildNFA();
+  DFA* abcDfa = abc->dfaOf();
+
+  vizualizeFA("abcDfa", abcDfa);  
+
+  vizualizeFA("abc", abc);  
+
+  delete abcDfa;
+  delete abc;
+  delete fab;
+
+  #pragma endregion HUE3C
+
+  #pragma region HUE3D
+
+  cout << "3.b)" << endl;
+  cout << "------" << endl;
+  cout << endl;
+
+  fab = new FABuilder();
+  fab->setStartState("S").
+    addFinalState("R").
+    addTransition("S", 'a', "S").
+    addTransition("S", 'b', "S").
+    addTransition("S", 'c', "S").
+    addTransition("S", 'a', "A").
+    addTransition("S", 'b', "B").
+    addTransition("S", 'c', "C").
+    addTransition("A", 'a', "A").
+    addTransition("A", 'b', "A").
+    addTransition("A", 'c', "A").
+    addTransition("B", 'a', "B").
+    addTransition("B", 'b', "B").
+    addTransition("B", 'c', "B").
+    addTransition("C", 'a', "C").
+    addTransition("C", 'b', "C").
+    addTransition("C", 'c', "C").
+    addTransition("A", 'a', "R").
+    addTransition("B", 'b', "R").
+    addTransition("C", 'c', "R");
+
+  abc = fab->buildNFA();
+  abcDfa = abc->dfaOf();
+  DFA* abcDfaMinimal = abcDfa->minimalOf();
+
+  vizualizeFA("abcDfa", abcDfa);  
+
+  vizualizeFA("abcDfaMinimal", abcDfaMinimal);  
+
+  delete abcDfaMinimal;
+  delete abcDfa;
+  delete abc;
+  delete fab;
+
+  #pragma endregion HUE3D
+/*
   cout << "2. NFA" << endl;
   cout << "------" << endl;
   cout << endl;
@@ -363,18 +610,18 @@ try {
   renMinDfaOfNfa = minDfaOfNfa->renamedOf();
   cout << "renMinDfaOfNfa:" << endl << *renMinDfaOfNfa;
   vizualizeFA("renMinDfaOfNfa", renMinDfaOfNfa);
-
+*/
 
 } catch(const exception &e) {
   cerr <<  "EXCEPTION (" << typeid(e).name() << "): " << e.what() << endl;
 } // catch
 
   // fab has already been deleted
-  delete dfa;
-  delete nfa;
-  delete dfaOfNfa ;
-  delete minDfaOfNfa;
-  delete renMinDfaOfNfa;
+  //delete dfa;
+  //delete nfa;
+  //delete dfaOfNfa ;
+  //delete minDfaOfNfa;
+  //delete renMinDfaOfNfa;
 
   cout << endl;
   cout << "END Main" << endl;
