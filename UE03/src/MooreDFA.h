@@ -1,4 +1,4 @@
-// MooreDFA.h:                                                 HDO, 2006-2019
+// MooreDFA.h:                                                 SWE, 2022
 // -----
 // Objects of class MooreDFA represent deterministic finite automata.
 //======================================================================
@@ -12,20 +12,16 @@
 #include "DFA.h"
 
 
-class FABuilder;           // forward for friend declaration only
-
+class FABuilder; 
 
 class MooreDFA: public DFA
  /*OC+*/ , private ObjectCounter<MooreDFA> /*+OC*/ {
 
-  friend class FABuilder;  // so FABuilder::build... methods can call prot. constr.
-
+  friend class FABuilder;
   private:
-
     typedef DFA Base;
 
   protected: // allows derived classes, e.g., for Mealy and or Moore
-
     // constructor called by FABuilder::build... methods and derived classes
     MooreDFA(const StateSet &S,  const TapeSymbolSet &V,
         const State    &s1, const StateSet      &F,
@@ -38,16 +34,11 @@ class MooreDFA: public DFA
     MooreDFA(      MooreDFA &&mooredfa) = default;
 
     virtual ~MooreDFA() = default;
-
-    virtual bool accepts(const Tape &tape) const; // impl. of abstr. meth.
+    virtual bool accepts(const Tape &tape) const;
 
 }; // DFA
 
-
 #endif
 
-// end of DFA.h
+// end of MooreDFA.h
 //======================================================================
-
-
-

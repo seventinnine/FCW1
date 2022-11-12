@@ -1,4 +1,4 @@
-// MooreDFA.cpp:                                               HDO, 2006-2019
+// MooreDFA.cpp:                                                SWE, 2022
 // -------
 // Objects of class MooreDFA represent deterministic finite automata.
 //======================================================================
@@ -19,7 +19,7 @@ using namespace std;
 #include "FABuilder.h"
 #include "MooreDFA.h"
 
-// --- implementation of class DFA ---
+// --- implementation of class MooreDFA ---
 
 MooreDFA::MooreDFA(const StateSet &S,  const TapeSymbolSet &V,
          const State    &s1, const StateSet      &F,
@@ -27,8 +27,6 @@ MooreDFA::MooreDFA(const StateSet &S,  const TapeSymbolSet &V,
          const std::map<State, char> &mooreLambda)
 : DFA(S, V, s1, F, delta), mooreLambda(mooreLambda) {
 } // MooreDFA::MooreDFA
-
-
 
 bool MooreDFA::accepts(const Tape &tape) const {
   int        i   = 0;       // index of first symbol
@@ -43,6 +41,7 @@ bool MooreDFA::accepts(const Tape &tape) const {
     i++;
     tSy = tape[i];          // fetch next symbol
   } // while
+  cout << " ";
   return F.contains(s);     // accepted <==> s element of F
 } // MooreDFA::accepts
 

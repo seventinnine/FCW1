@@ -9,10 +9,8 @@ digraph finite_state_machine {
   node [shape = circle peripheries = 1];  // shape for non-final nodes
   START -> "B";
 
-  "B" -> "E" [label = "b" fontname = Arial fontsize = 10]; 
   "B" -> "END" [label = "b" fontname = Arial fontsize = 10]; 
   "B" -> "R" [label = "b" fontname = Arial fontsize = 10]; 
-  "E" -> "END" [label = "e" fontname = Arial fontsize = 10]; 
   "R" -> "END" [label = "b, z" fontname = Arial fontsize = 10]; 
   "R" -> "R" [label = "b, z" fontname = Arial fontsize = 10]; 
 

@@ -118,38 +118,50 @@ FA *faOf(const Grammar *g)
 {
   bool deleteG = false;
   FABuilder fab{};
+  const Grammar* gToUse = g;
   // ensure g is epsilon-free
   if (!g->isEpsilonFree()) {
     deleteG = true;
-    g = newEpsilonFreeGrammarOf(g);
+    gToUse = newEpsilonFreeGrammarOf(g);
   }
 
   // set final states
   if (deleteG) { // means that g has S' => is end state
     fab.addFinalState(g->root->name);
+  } else {
+    // if rule of root already contained epsilon,
+    // mark it as end state
+    for (auto rootAlternatives : g->rules[g->root]) {
+      if (rootAlternatives->size() == 0)
+        fab.addFinalState(g->root->name);
+    }
   }
+
   fab.setStartState(g->root->name);
   // generic end state "END" for alternatives without NT
   fab.addFinalState("END");
 
   for (auto [ntSy, alternatives] : g->rules) {
     for (auto alternative : alternatives) {
-      // size of alternative can only be 1 or 2 in regular grammar
-      if (alternative->size() == 1) { // no ntSy in alternative => edge to end state with symbol before at pos 0
-        fab.addTransition(ntSy->name, alternative->at(0)->name[0], "END");
-      } else { // ntSy has edge to ntSy in alternative with symbol before at pos 0
-        fab.addTransition(ntSy->name, alternative->at(0)->name[0], alternative->at(1)->name);
-      }
+      
+      if (alternative->size() > 0) { // ignore eps alternatives
+        char ts = alternative->at(0)->name[0];
+        if (alternative->size() == 1) { 
+          // no ntSy in alternative => 
+          // ntSy has edge to artificial end state with ts
+          fab.addTransition(ntSy->name, ts, "END");
+        } else if (alternative->size() == 2) {
+          // ntSy has edge to nextState with ts
+          string nextState = alternative->at(1)->name;
+          fab.addTransition(ntSy->name, ts, nextState);
+        }
+      }      
     }
   }
 
   // delete generated epsilon-free grammar
   if (deleteG) delete g;
 
-  //auto nfa = fab.buildNFA();
-  //auto dfa = nfa->dfaOf();
-  //auto res = dfa->minimalOf();
-  //delete nfa; delete dfa;
   return fab.buildNFA();
 }
 
@@ -310,11 +322,14 @@ try {
   cout << "1.a) faOf" << endl;
   cout << "------" << endl;
   cout << endl;
-  
+  /*
   GrammarBuilder gb{"G(B):           \n\
                     B -> b | b R | b E    \n\
                     R -> b | z | b R | z R \n\
                     E -> e"};
+                    */
+  
+  GrammarBuilder gb{string("G.txt")};
 
   Grammar* g = gb.buildGrammar();
   FA* faOfG = faOf(g);
@@ -351,8 +366,9 @@ try {
   dfa = fab->buildDFA();
   vizualizeFA("dfa", dfa);
 
-  cout << "dfa->accepts(\"bzb\") = " << dfa->accepts("bzb") << endl;
-  cout << "dfa->accepts(\"z\")   = " << dfa->accepts("z")   << endl;
+  cout << "dfa->accepts(\"bzb\")      = " << boolalpha << dfa->accepts("bzb") << endl;
+  cout << "dfa->accepts(\"bbbbzbzz\") = " << boolalpha << dfa->accepts("bbbbzbzz") << endl;
+  cout << "dfa->accepts(\"zbb\")      = " << boolalpha << dfa->accepts("z")  << endl;
   cout << endl;
 
   delete fab;
@@ -382,8 +398,10 @@ try {
 
   MooreDFA* mooreDfa = fab->buildMooreDFA();
 
-  cout << "mooreDfa->accepts(\"bzzb\") = " << mooreDfa->accepts("bzzb") << endl;
-  cout << "mooreDfa->accepts(\"zzb\") = " << mooreDfa->accepts("zzb") << endl;
+  cout << "mooreDfa->accepts(\"bzb\")      = " << boolalpha << mooreDfa->accepts("bzb") << endl;
+  cout << "mooreDfa->accepts(\"bbbbzbzz\") = " << boolalpha << mooreDfa->accepts("bbbbzbzz") << endl;
+  cout << "mooreDfa->accepts(\"zbb\")      = " << boolalpha << mooreDfa->accepts("z")  << endl;
+  cout << endl;
 
   vizualizeFA("mooreDfa", mooreDfa);
   
@@ -491,7 +509,7 @@ try {
 
   #pragma region HUE3C
 
-  cout << "3.b)" << endl;
+  cout << "3.c)" << endl;
   cout << "------" << endl;
   cout << endl;
 
@@ -522,8 +540,6 @@ try {
 
   vizualizeFA("abcDfa", abcDfa);  
 
-  vizualizeFA("abc", abc);  
-
   delete abcDfa;
   delete abc;
   delete fab;
@@ -532,7 +548,7 @@ try {
 
   #pragma region HUE3D
 
-  cout << "3.b)" << endl;
+  cout << "3.d)" << endl;
   cout << "------" << endl;
   cout << endl;
 
