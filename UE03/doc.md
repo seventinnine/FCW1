@@ -34,15 +34,190 @@ Um nicht zwischen DFA und NFA unterscheiden zu müssen, wurde die Sichtbarkeit v
 Bei jeder Anwendung der Zustandsüberführungsfunktion ist der **State** (Variable in der Schleife) die Regel der Grammatik.
 Das Band-Symbol (Variable in der Schleife => TSymbol) und die von **deltaOf()** gelieferten Zustände (NTSymbol) bilden Sequenzen dieser Regel.
 Falls die **deltaOf()** von gelieferten Zustände keine ausgehenden Zustandsüberführungen mehr haben, dann werden diese in der Grammatik einfach ignoriert und das Band-Symbol hat in der Alternative kein nachfolgendes NTSymbol.
-Falls der Start-Zustand bereits ein End-Zustand ist, bekommt die Regel dieses Zuständes eine Epsilon-Alternative.
+Falls der Start-Zustand bereits ein End-Zustand ist, bekommt die Regel dieses Zustandes eine Epsilon-Alternative.
 
 ### Code:
 
+```cpp
+FA *faOf(const Grammar *g) 
+{
+  bool deleteG = false;
+  FABuilder fab{};
+  const Grammar* gToUse = g;
+  // ensure g is epsilon-free
+  if (!g->isEpsilonFree()) {
+    deleteG = true;
+    gToUse = newEpsilonFreeGrammarOf(g);
+  }
 
+  // set final states
+  if (deleteG) { // means that g has S' => is end state
+    fab.addFinalState(g->root->name);
+  } else {
+    // if rule of root already contained epsilon,
+    // mark it as end state
+    for (auto rootAlternatives : g->rules[g->root]) {
+      if (rootAlternatives->size() == 0)
+        fab.addFinalState(g->root->name);
+    }
+  }
+
+  fab.setStartState(g->root->name);
+  // generic end state "END" for alternatives without NT
+  fab.addFinalState("END");
+
+  for (auto [ntSy, alternatives] : g->rules) {
+    for (auto alternative : alternatives) {
+      
+      if (alternative->size() > 0) { // ignore eps alternatives
+        char ts = alternative->at(0)->name[0];
+        if (alternative->size() == 1) { 
+          // no ntSy in alternative => 
+          // ntSy has edge to artificial end state with ts
+          fab.addTransition(ntSy->name, ts, "END");
+        } else if (alternative->size() == 2) {
+          // ntSy has edge to nextState with ts
+          string nextState = alternative->at(1)->name;
+          fab.addTransition(ntSy->name, ts, nextState);
+        }
+      }      
+    }
+  }
+
+  // delete generated epsilon-free grammar
+  if (deleteG) delete g;
+
+  return fab.buildNFA();
+}
+
+Grammar* grammarOf(const FA* fa) {
+
+  SymbolPool sp{};
+  GrammarBuilder gb{sp.ntSymbol(fa->s1)};
+
+  // iterate over each state
+  for (const State& state : fa->S) {
+    // iterate over each tape symbol
+    for (const TapeSymbol& ts : fa->V) {
+      // get all possible transition destinatons from state using tape symbol
+      auto destinations = fa->deltaAt(state, ts);
+      for (const State& dest : destinations) {
+        // add this transition to grammar as alternative
+
+        // takes care of states like S' or END
+        // if dest does not have any outgoing tape symbols
+        // => ignore dest in grammar
+        bool hasOutgoing = false;
+        for (const TapeSymbol& ts1 : fa->V) {
+          if (fa->deltaAt(dest, ts1).size() > 0) {
+            hasOutgoing = true;
+          }
+        }
+
+        if (hasOutgoing) {
+          gb.addRule(sp.ntSymbol(state), 
+            new Sequence({
+              sp.tSymbol(string{ts}), 
+              sp.ntSymbol(dest)}
+              )
+          );
+        } else {
+          gb.addRule(sp.ntSymbol(state), 
+            new Sequence({sp.tSymbol(string{ts})})
+          );
+        }         
+
+        // if dest is an end state, also add alternative without dest
+        if (fa->F.contains(dest)) {
+          gb.addRule(sp.ntSymbol(state), 
+            new Sequence(sp.tSymbol(string{ts}))
+          );
+        }
+      }
+    }
+  }
+
+  // if start state is also end state, add epsilon as alternative
+  if (fa->F.contains(fa->s1)) {
+    gb.addRule(sp.ntSymbol(fa->s1), new Sequence());
+  }
+
+  return gb.buildGrammar();
+}
+```
 
 
 ### Tests:
 
+```cpp
+  cout << "1.a) faOf" << endl;
+  cout << "------" << endl;
+  cout << endl;
+  
+  GrammarBuilder gb{string("G.txt")};
+
+  Grammar* g = gb.buildGrammar();
+  FA* faOfG = faOf(g);
+  vizualizeFA("faOfG", faOfG);
+
+  cout << "1.b) grammarOf" << endl;
+  cout << "------" << endl;
+  cout << endl;
+
+  Grammar* gOfFaOfG = grammarOf(faOfG);
+  std::cout << *gOfFaOfG;
+
+  delete g;
+  delete faOfG;
+  delete gOfFaOfG;
+```
+
+### Testfall 1
+
+```
+G(B):
+B -> b | b R
+R -> b | z | b R | z R
+```
+
+![](imgs/11.PNG)
+
+![](imgs/11res.PNG)
+
+**gOfFaOfG** und Eingabe-Grammatik sind wieder gleich.
+
+### Testfall 2
+
+```
+G(K):
+K -> z | z R | + R | - R
+R -> z | z R
+```
+
+![](imgs/12.PNG)
+
+![](imgs/12res.PNG)
+
+**gOfFaOfG** und Eingabe-Grammatik sind wieder gleich.
+
+### Testfall 3 - Grammatik mit Epsilon (vom Übungszettel 2 geklaut)
+
+Anmerkung: Die Grammatik ist bereits Epsilon-Frei.
+Bei dem Test geht es nur darum, zu sehen, ob der Zustand für das Satz-Symbol (Start-Zustand) auch als End-Zustand markiert wird.
+
+```
+G(S):
+S -> b A | a B | eps
+A -> b A | b
+B -> b C | b
+C -> a B
+```
+
+![](imgs/13.PNG)
+
+![](imgs/13res.PNG)
+
+**gOfFaOfG** und Eingabe-Grammatik sind wieder gleich, Start-Zustand auch als End-Zustand markiert.
 
 # 2. DFA, Erkennung und Mealy- oder Moore-Automat
 
@@ -356,7 +531,6 @@ bool MooreDFA::accepts(const Tape &tape) const {
 
 # 4. Kellerautomat und erweiterter Kellerautomat
 
-
 ## a)
 
 ```
@@ -369,6 +543,15 @@ TypeIdent       -> INTEGER | BOOLEAN | CHAR .
 ```
 
 ## b)
+
+```
+DKA = (Z, VT , V, d, z1 , S, F)
+VT = {VAR, ident, number, ";", ":", ",", ")", "(", OF, ARRAY, INTEGER, BOOLEAN, CHAR}
+V = {Declaration, VarDeclList, VarDecl, IdentList, Type, TypeIdent}
+Z = {z1}
+S = Declaration
+F = {z1}
+```
 
 ```
 S1:
@@ -401,16 +584,98 @@ d(Z, BOOLEAN, BOOLEAN)  = (Z, e)
 d(Z, CHAR, CHAR)        = (Z, e)
 ```
 
+## c)
 
-d(Z, e, TypeIdent) = (Z, INTEGER)
-d(Z, e, TypeIdent) = (Z, BOOLEAN)
-d(Z, e, TypeIdent) = (Z, CHAR)
-d(Z, INTEGER, INTEGER) = (Z, e) => reduktion
-(Z, VAR, VAR) = (Z, e)
+```
+DKA = (Z, VT , V, d, z1 , S, F)
+VT = {VAR, ident, number, ";", ":", ",", ")", "(", OF, ARRAY, INTEGER, BOOLEAN, CHAR}
+V = {Declaration, VarDeclList, VarDecl, IdentList, Type, TypeIdent, $(nur am Start)}
+Z = {z1}
+S = Declaration
+F = {z1}
+```
 
-(Z, Declaration .VAR a, b: INTEGER;)
-(Z, VarDeclList **VAR** . VARa, b: INTEGER;)
-(Z, VarDeclList . a, b: INTEGER;)
+```
+S1:
+d(Z, e, VAR)                                = (Z, Declaration)
+d(Z, e, VAR VarDeclList)                    = (Z, Declaration)
+d(Z, e, VarDecl ";")                        = (Z, VarDeclList)
+d(Z, e, VarDecl ";" VarDeclList)            = (Z, VarDeclList)
+d(Z, e, IdentList ":" Type)                 = (Z, VarDecl)
+d(Z, e, ident)                              = (Z, IdentList)
+d(Z, e, ident "," IdentList)                = (Z, IdentList)
+d(Z, e, ARRAY "(" number ")" OF TypeIdent)  = (Z, Type)
+d(Z, e, TypeIdent)                          = (Z, Type)
+d(Z, e, INTEGER)                            = (Z, TypeIdent)
+d(Z, e, BOOLEAN)                            = (Z, TypeIdent)
+d(Z, e, CHAR)                               = (Z, TypeIdent)
+
+S2:
+d(Z, VAR, $)            = (Z, $ VAR)
+d(Z, ";", $)            = (Z, $ ";")
+d(Z, ident, $)          = (Z, $ ident)
+d(Z, ":", $)            = (Z, $ ":")
+d(Z, ",", $)            = (Z, $ ",")
+d(Z, ARRAY, $)          = (Z, $ ARRAY)
+d(Z, number, $)         = (Z, $ number)
+d(Z, OF, $)             = (Z, $ OF)
+d(Z, ")", $)            = (Z, $ ")")
+d(Z, "(", $)            = (Z, $ "(")
+d(Z, INTEGER, $)        = (Z, $ INTEGER)
+d(Z, BOOLEAN, $)        = (Z, $ BOOLEAN)
+d(Z, CHAR, $)           = (Z, $ CHAR)
+d(Z, VAR, Declaration)  = (Z, Declaration VAR)
+d(Z, ";", Declaration)  = (Z, Declaration ";")
++ 76 more
+
+(|VT| * |V| == 13 * 7 == 91 mögliche Kombinationen, um Papier zu sparen, enumeriere ich die jetzt nicht)
+
+S3:
+S(Z, e, $Declaration) = (R, e)
+```
+
+## d)
+
+### für b) (nur erfolgreiche Züge)
+
+```
+(Z, Declaration                 .VAR a, b: INTEGER;) |-- 
+(Z, VarDeclList VAR             .VAR a, b: INTEGER;) |-- 
+(Z, VarDeclList                 .a, b: INTEGER;) |-- 
+(Z, ; VarDecl                   .a, b: INTEGER;) |-- 
+(Z, ; Type : IdentList          .a, b: INTEGER;) |-- 
+(Z, ; Type : IdentList , ident  .a, b: INTEGER;) |-- 
+(Z, ; Type : IdentList ,        ., b: INTEGER;) |-- 
+(Z, ; Type : IdentList          .b: INTEGER;) |-- 
+(Z, ; Type : ident              .b: INTEGER;) |-- 
+(Z, ; Type :                    .: INTEGER;) |-- 
+(Z, ; Type                      .INTEGER;) |-- 
+(Z, ; TypeIdent                 .INTEGER;) |-- 
+(Z, ;                           .;) |-- 
+(Z,                             .) erkannt! (Keller leer)
+```
+
+### für c) (nur erfolgreiche Züge)
+
+```
+(Z, $                           .VAR a, b: INTEGER;) |--
+(Z, $VAR                        .a, b: INTEGER;) |--
+(Z, $VAR a                      ., b: INTEGER;) |--
+(Z, $VAR ident                  ., b: INTEGER;) |--
+(Z, $VAR ident,                 . b: INTEGER;) |--
+(Z, $VAR ident, b               .: INTEGER;) |--
+(Z, $VAR ident, ident           .: INTEGER;) |--
+(Z, $VAR ident, IdentList       .: INTEGER;) |--
+(Z, $VAR IdentList              .: INTEGER;) |--
+(Z, $VAR IdentList :            .INTEGER;) |--
+(Z, $VAR IdentList : INTEGER    .;) |--
+(Z, $VAR IdentList : Type       .;) |--
+(Z, $VAR VarDecl                .;) |--
+(Z, $VAR VarDecl ;              .) |--
+(Z, $VAR VarDeclList            .) |--
+(Z, $Declaration                .) |--
+(R,                             .) erkannt!
+```
 
 # 5. Term. Anfänge/Nachfolger, LL(k)-Bedingung u. Transformation
 

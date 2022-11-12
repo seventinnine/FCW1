@@ -1,3 +1,5 @@
-G(B):
-B -> b | b R
-R -> b | z | b R | z R
+G(S):
+S -> b A | a B | eps
+A -> b A | b
+B -> b C | b
+C -> a B

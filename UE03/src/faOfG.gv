@@ -5,13 +5,16 @@ digraph finite_state_machine {
   node [fontname = Arial fontsize = 10 style = filled fillcolor = gray90]
   "faOfG:" [shape = none style = "" fontsize = 12];
   node [shape = point]; START; // shape for START node
-  node [shape = ellipse peripheries = 2] "END"; // shape for final nodes
+  node [shape = ellipse peripheries = 2] "END" "S"; // shape for final nodes
   node [shape = circle peripheries = 1];  // shape for non-final nodes
-  START -> "B";
+  START -> "S";
 
+  "S" -> "A" [label = "b" fontname = Arial fontsize = 10]; 
+  "S" -> "B" [label = "a" fontname = Arial fontsize = 10]; 
+  "B" -> "C" [label = "b" fontname = Arial fontsize = 10]; 
   "B" -> "END" [label = "b" fontname = Arial fontsize = 10]; 
-  "B" -> "R" [label = "b" fontname = Arial fontsize = 10]; 
-  "R" -> "END" [label = "b, z" fontname = Arial fontsize = 10]; 
-  "R" -> "R" [label = "b, z" fontname = Arial fontsize = 10]; 
+  "A" -> "A" [label = "b" fontname = Arial fontsize = 10]; 
+  "A" -> "END" [label = "b" fontname = Arial fontsize = 10]; 
+  "C" -> "B" [label = "a" fontname = Arial fontsize = 10]; 
 
 }

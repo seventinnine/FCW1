@@ -165,7 +165,6 @@ FA *faOf(const Grammar *g)
   return fab.buildNFA();
 }
 
-
 /*
 FA *faOf(const Grammar *g) 
 {
@@ -225,9 +224,9 @@ Grammar* grammarOf(const FA* fa) {
       for (const State& dest : destinations) {
         // add this transition to grammar as alternative
 
-        // takes care of states like E'
+        // takes care of states like S' or END
         // if dest does not have any outgoing tape symbols
-        // => ignore in grammar
+        // => ignore dest in grammar
         bool hasOutgoing = false;
         for (const TapeSymbol& ts1 : fa->V) {
           if (fa->deltaAt(dest, ts1).size() > 0) {
@@ -246,7 +245,7 @@ Grammar* grammarOf(const FA* fa) {
           gb.addRule(sp.ntSymbol(state), 
             new Sequence({sp.tSymbol(string{ts})})
           );
-        }         
+        }
 
         // if dest is an end state, also add alternative without dest
         if (fa->F.contains(dest)) {
