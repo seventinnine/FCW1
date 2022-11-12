@@ -1,8 +1,8 @@
 # 1. Objektorientierte Implementierung endlicher Automaten
 
-## a) faOf()
+### Lösungsideen:
 
-### Lösungsidee:
+#### faOf():
 
 Beim Durchdenken des Algorithmus habe ich festgestellt, dass Epsilon-Alternativen in der reguläre Grammatik die Umsetzung erschweren könnten.
 Deshalb wird zunächst die reguläre Grammatik mit der Methode **newEpsilonFreeGrammarOf** aus dem ersten Übungszettel Epsilon-frei gemacht.
@@ -24,18 +24,7 @@ Zu Beginn werden die Folgezustände von den Band-Symbol ohne folgenden NTSymbol 
 Kann also ein End-Zustand sein.
 -->
 
-### Code:
-
-
-
-
-### Tests:
-
-
-
-## b) grammarOf()
-
-### Lösungsidee:
+#### grammarOf():
 
 Es kann ein beliebiger **FA** übergeben werden.
 Damit ich DFA und NFA bei der Implemtierung des Algorithmus gleich behandeln kann, habe ich die Sichtbarkeit der Methode **virtual StateSet FA::deltaAt(const State &src, TapeSymbol tSy) const = 0;** auf public geändert und immer mit **StateSet**s gearbeitet.
