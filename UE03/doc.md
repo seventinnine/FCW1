@@ -555,33 +555,33 @@ F = {z1}
 
 ```
 S1:
-d(Z, e, Declaration)    = (Z, VAR)
-d(Z, e, Declaration)    = (Z, VarDeclList VAR)
-d(Z, e, VarDeclList)    = (Z, ";" VarDecl)
-d(Z, e, VarDeclList)    = (Z, VarDeclList ";" VarDecl)
-d(Z, e, VarDecl)        = (Z, Type ":" IdentList)
-d(Z, e, IdentList)      = (Z, ident)
-d(Z, e, IdentList)      = (Z, IdentList "," ident)
-d(Z, e, Type)           = (Z, TypeIdent OF ")" number "(" ARRAY)
-d(Z, e, Type)           = (Z, TypeIdent)
-d(Z, e, TypeIdent)      = (Z, INTEGER)
-d(Z, e, TypeIdent)      = (Z, BOOLEAN)
-d(Z, e, TypeIdent)      = (Z, CHAR)
+d(Z, ε, Declaration)    = (Z, VAR)
+d(Z, ε, Declaration)    = (Z, VarDeclList VAR)
+d(Z, ε, VarDeclList)    = (Z, ";" VarDecl)
+d(Z, ε, VarDeclList)    = (Z, VarDeclList ";" VarDecl)
+d(Z, ε, VarDecl)        = (Z, Type ":" IdentList)
+d(Z, ε, IdentList)      = (Z, ident)
+d(Z, ε, IdentList)      = (Z, IdentList "," ident)
+d(Z, ε, Type)           = (Z, TypeIdent OF ")" number "(" ARRAY)
+d(Z, ε, Type)           = (Z, TypeIdent)
+d(Z, ε, TypeIdent)      = (Z, INTEGER)
+d(Z, ε, TypeIdent)      = (Z, BOOLEAN)
+d(Z, ε, TypeIdent)      = (Z, CHAR)
 
 S2:
-d(Z, VAR, VAR)          = (Z, e)
-d(Z, ";", ";")          = (Z, e)
-d(Z, ident, ident)      = (Z, e)
-d(Z, ":", ":")          = (Z, e)
-d(Z, ",", ",")          = (Z, e)
-d(Z, ARRAY, ARRAY)      = (Z, e)
-d(Z, number, number)    = (Z, e)
-d(Z, OF, OF)            = (Z, e)
-d(Z, ")", ")")          = (Z, e)
-d(Z, "(", "(")          = (Z, e)
-d(Z, INTEGER, INTEGER)  = (Z, e)
-d(Z, BOOLEAN, BOOLEAN)  = (Z, e)
-d(Z, CHAR, CHAR)        = (Z, e)
+d(Z, VAR, VAR)          = (Z, ε)
+d(Z, ";", ";")          = (Z, ε)
+d(Z, ident, ident)      = (Z, ε)
+d(Z, ":", ":")          = (Z, ε)
+d(Z, ",", ",")          = (Z, ε)
+d(Z, ARRAY, ARRAY)      = (Z, ε)
+d(Z, number, number)    = (Z, ε)
+d(Z, OF, OF)            = (Z, ε)
+d(Z, ")", ")")          = (Z, ε)
+d(Z, "(", "(")          = (Z, ε)
+d(Z, INTEGER, INTEGER)  = (Z, ε)
+d(Z, BOOLEAN, BOOLEAN)  = (Z, ε)
+d(Z, CHAR, CHAR)        = (Z, ε)
 ```
 
 ## c)
@@ -589,7 +589,7 @@ d(Z, CHAR, CHAR)        = (Z, e)
 ```
 DKA = (Z, VT , V, d, z1 , S, F)
 VT = {VAR, ident, number, ";", ":", ",", ")", "(", OF, ARRAY, INTEGER, BOOLEAN, CHAR}
-V = {Declaration, VarDeclList, VarDecl, IdentList, Type, TypeIdent, $(nur am Start)}
+V = {$}
 Z = {z1}
 S = Declaration
 F = {z1}
@@ -597,18 +597,18 @@ F = {z1}
 
 ```
 S1:
-d(Z, e, VAR)                                = (Z, Declaration)
-d(Z, e, VAR VarDeclList)                    = (Z, Declaration)
-d(Z, e, VarDecl ";")                        = (Z, VarDeclList)
-d(Z, e, VarDecl ";" VarDeclList)            = (Z, VarDeclList)
-d(Z, e, IdentList ":" Type)                 = (Z, VarDecl)
-d(Z, e, ident)                              = (Z, IdentList)
-d(Z, e, ident "," IdentList)                = (Z, IdentList)
-d(Z, e, ARRAY "(" number ")" OF TypeIdent)  = (Z, Type)
-d(Z, e, TypeIdent)                          = (Z, Type)
-d(Z, e, INTEGER)                            = (Z, TypeIdent)
-d(Z, e, BOOLEAN)                            = (Z, TypeIdent)
-d(Z, e, CHAR)                               = (Z, TypeIdent)
+d(Z, ε, VAR)                                = (Z, Declaration)
+d(Z, ε, VAR VarDeclList)                    = (Z, Declaration)
+d(Z, ε, VarDecl ";")                        = (Z, VarDeclList)
+d(Z, ε, VarDecl ";" VarDeclList)            = (Z, VarDeclList)
+d(Z, ε, IdentList ":" Type)                 = (Z, VarDecl)
+d(Z, ε, ident)                              = (Z, IdentList)
+d(Z, ε, ident "," IdentList)                = (Z, IdentList)
+d(Z, ε, ARRAY "(" number ")" OF TypeIdent)  = (Z, Type)
+d(Z, ε, TypeIdent)                          = (Z, Type)
+d(Z, ε, INTEGER)                            = (Z, TypeIdent)
+d(Z, ε, BOOLEAN)                            = (Z, TypeIdent)
+d(Z, ε, CHAR)                               = (Z, TypeIdent)
 
 S2:
 d(Z, VAR, $)            = (Z, $ VAR)
@@ -624,14 +624,14 @@ d(Z, "(", $)            = (Z, $ "(")
 d(Z, INTEGER, $)        = (Z, $ INTEGER)
 d(Z, BOOLEAN, $)        = (Z, $ BOOLEAN)
 d(Z, CHAR, $)           = (Z, $ CHAR)
-d(Z, VAR, Declaration)  = (Z, Declaration VAR)
-d(Z, ";", Declaration)  = (Z, Declaration ";")
-+ 76 more
+//d(Z, VAR, Declaration)  = (Z, Declaration VAR)
+//d(Z, ";", Declaration)  = (Z, Declaration ";")
+//+ 76 more
 
-(|VT| * |V| == 13 * 7 == 91 mögliche Kombinationen, um Papier zu sparen, enumeriere ich die jetzt nicht)
+//(|VT| * |V| == 13 * 7 == 91 mögliche Kombinationen, um Papier zu sparen, enumeriere ich die jetzt nicht)
 
 S3:
-S(Z, e, $Declaration) = (R, e)
+S(Z, ε, $Declaration) = (R, ε)
 ```
 
 ## d)
@@ -679,4 +679,179 @@ S(Z, e, $Declaration) = (R, e)
 
 # 5. Term. Anfänge/Nachfolger, LL(k)-Bedingung u. Transformation
 
+## a)
 
+```
+// prodmod
+First1(MODULE id : priority ; imppart block id .) = { MODULE }
+// priority
+First1(const)                   = { const }
+First1(ε)                       = { ";" } 
+    => Follow1(priority)
+// imppart
+First1(FROM id IMPORT implist)  = { FROM }
+First1(IMPORT implist)          = { IMPORT }
+// implist                
+First1(id)                      = { id } // bad
+First1(id, implist)             = { id } // bad
+// block
+First1(dclpart statpart)        = { DECL } 
+    dclpart => DECL
+First1(statpart)                = { BEGIN } 
+    statpart => BEGIN
+// dclpart
+First1(DECL)                    = { DECL } // bad
+First1(DECL ; dclpart)          = { DECL } // bad
+// statpart
+First1(BEGIN statseq ; END)     = { BEGIN }
+// statseq
+First1(STAT)                    = { STAT } // bad
+First1(STAT ; statseq)          = { STAT } // bad
+
+// Follow1 ist für LL(1) eigentlich eh egal
+Follow1(progmod)    = { } // root
+Follow1(priority)   = { ";" };
+Follow1(imppart)    = { DECL, BEGIN }; 
+    imppart => block => declpart,statpart => DECL,BEGIN
+Follow1(implist)    = { DECL, BEGIN }; 
+    implist => imppart => block => declpart,statpart => DECL,BEGIN
+Follow1(block)      = { id };
+Follow1(dclpart)    = { BEGIN }; 
+    dclpart => block => statpart => BEGIN
+Follow1(statpart)   = { id }; 
+    statpart => block
+Follow1(statseq)    = { ";" };
+```
+
+## b)
+
+Die Grammatik ist nicht LL(0), weil es bei einigen NTSymbolen mehr als eine Alternative gibt.
+
+Die Grammatik kann auf jeden Fall nicht LL(1) sein, da beide Alternativen von **implist**, **dclpart** und **statseq** mit dem gleichen TSymbol beginnen.
+
+```
+Follow1(implist) = { DECL, BEGIN }; // könnte man eigentlich ja ignorieren
+First1(id Follow1(implist)) = { id }
+First1(id , implist Follow1(implist)) = { id }
+{ id } ∩ { id } = { id } != { }
+```
+
+Die Grammatik ist nicht stark LL(2), da man bei **statseq** immernoch das Problem hat, dass das zweite Vorgriffszeichen der Alternativen (";") entweder von der zweiten Alternativen kommen kann, oder vom **statpart**.
+
+```
+Follow2(statseq) = { ";" END };
+First2(STAT Follow2(statseq)) = { STAT ";" }
+First2(STAT ; statseq Follow2(statseq)) = { STAT ";" }
+{ STAT ";" } ∩ { STAT ";" } = { STAT ";" } != { }
+```
+
+Sie ist auch nicht schwach LL(2), da **statpart** (Regel, die **statseq** verwendet) nur aus einer Alternative besteht und die 2 Vorgriffs-Symbole nicht ausreichen, um hier eine Entscheidungsfindung zu machen.
+
+Erkennung in einer Satzform:
+```
+... BEGIN statseq ";" END
+    => ... BEGIN _STAT ";"_ END
+    oder
+    => ... BEGIN _STAT ";"_ STAT ";" END
+```
+
+Mit einem dritten Vorgriffssymbol kann dieses Problem gelöst werden und die Grammatik ist stark LL(3):
+
+```
+Follow2(statseq) = { ";" END };
+First2(STAT Follow2(statseq)) = { STAT ";" END }
+First2(STAT ; STAT ; Follow2(statseq)) = { STAT ";" STAT }
+{ STAT ";" END } ∩ { STAT ";" STAT } = { }
+```
+
+Erkennung in einer Satzform:
+```
+... BEGIN statseq ";" END
+    => ... BEGIN _STAT ";" END_
+    oder
+    => ... BEGIN _STAT ";" STAT_ ";" END
+```
+
+## c)
+
+Regeln, die bereits die LL(1)-Bedingung verletzten abändern (**implist**, **dclpart** und **statseq**).
+
+```
+progmod         -> MODULE id : priority ; imppart block id . .
+priority        -> const | ε .
+imppart         -> FROM id IMPORT implist | IMPORT implist .
+implist         -> id implist_list .
+implist_list    -> , id implist_list | ε .
+block           -> dclpart statpart | statpart .
+dclpart         -> DECL dclpart_list .
+dclpart_list    -> ; DECL dclpart_list | ε .
+statpart        -> BEGIN statseq ; END .
+statseq         -> STAT statseq_list .
+statseq_list    -> ; STAT statseq_list | ε .
+
+```
+
+Nach Transformation nun prüfen, ob LL(1) Bedingung erfüllt ist.
+Am einfachsten kann man das machen, indem man die First1() von allen Alternativen auslistet und prüft, dass jedes Vorgriffssymbol einer Alternative pro Regel maximal 1x vorkommt. Falls die Alternative von Regel **R** nur aus **ε** besteht, muss wieder Follow1(**R**) genommen werden.
+
+```
+// prodmod
+First1(MODULE id : priority ; imppart block id .) = { MODULE }
+// priority
+First1(const)                   = { const }
+First1(ε)                       = { "," } 
+    => Follow1(priority)
+// imppart
+First1(FROM id IMPORT implist)  = { FROM }
+First1(IMPORT implist)          = { IMPORT }
+// implist                
+First1(id implist_list          = { id }
+// implist_list
+First1(, id implist_list)       = { "," }
+First1(ε)                       = { DECL, BEGIN } 
+    => Follow1(implist_list) => implist => imppart => block => declpart,statpart => DECL,BEGIN
+// block
+First1(dclpart statpart)        = { DECL } 
+    dclpart => DECL
+First1(statpart)                = { BEGIN } 
+    statpart => BEGIN
+// dclpart
+First1(DECL dclpart_list)       = { DECL }
+// dclpart_list
+First1(; DECL dclpart_list)     = { ";" }
+First1(ε)                       = { BEGIN }
+     => Follow1(dclpart_list) => declpart => statpart => BEGIN
+// statpart
+First1(BEGIN statseq ; END)     = { BEGIN }
+// statseq
+First1(STAT statseq_list)       = { STAT }
+// statseq_list
+First1(; STAT statseq_list)     = { ";" } // still bad
+First1(ε)                       = { ";" } // still bad
+     => Follow1(statseq_list) => statseq => ";"
+```
+
+Aufgrund  **statseq\_list** ist Grammatik immernoch nicht LL(1) => **statpart**, **statseq** und **statseq\_list** ändern.
+
+Grammatik:
+
+```
+... everything above unchanged
+statpart   -> BEGIN STAT ; statseq END .
+statseq    -> STAT ; statseq | ε .
+statseq_list removed
+```
+
+Follow1():
+
+```
+... everything above unchanged
+// statpart
+First1(BEGIN STAT ; statseq END)    = { BEGIN }
+// statseq
+First1(STAT ; statseq)              = { STAT }
+First1(ε)                           = { END }
+     => Follow1(statseq) => END
+```
+
+Grammatik ist nun LL(1).
