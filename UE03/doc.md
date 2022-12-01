@@ -2,6 +2,8 @@
 
 ### Lösungsideen:
 
+Anmerkung: beim Durchlaufen von allen meinen Lösungen gab es laut report 0 Speicherleichen (kein Bild, um Seite zu sparen)
+
 #### faOf():
 
 Beim Durchdenken des Algorithmus habe ich festgestellt, dass Epsilon-Alternativen in der reguläre Grammatik die Umsetzung erschweren könnten.
@@ -10,19 +12,6 @@ Man kann dann die reguläre Grammatik relativ einfach in einen endlichen Automat
 Alle Alternativen, die nur aus einem TSymbol bestehen, bekommen einen Zustandsübergang auf einen allgemeinen End-Zustand (**END**).
 Da die reguläre Grammatik Epsilon-frei ist, gibt es höchstens ein Epsilon, welches sich im Satz-Symbol befinden könnte.
 In diesem Fall wird der Zustand für das Satz-Symbol auch als End-Zustand markiert.
-
-<!-- 
-Ich bin dabei so vorgegangen, wie ich die Grammatik händisch in einen endlichen Automaten umwandelt würde.
-Man betrachtet jede Regel der Grammatik.
-Das TSymbol auf der linken Seite der Regel (NTLeft) wäre beim Automaten der aktuelle Zustand, das Terminal-Symbol bei jeder Alternative wäre das Band-Symbol.
-Wenn ein Band-Symbol von einem NTSymbol gefolgt ist, dann entspricht es dem Anwenden der Zustandsüberführungsfunktion von (NTLeft, Band-Symbol) => NTNext, also wäre das eine Transition, die im Automaten einzutragen ist.
-
-Das gleiche Band-Symbol kann bei regulären Sprachen in den Alternativen einer Regeln maximal 2x vorkommen (einmal alleine, einmal gefolgt von einem ).
-Falls ein Band-Symbol 2x vorkommt, dann ist es einmal von einem NTSymbol gefolgt (NTNext, bei rechtsregulären Sprachen) und einmal steht es alleine da.
-Wenn das Band-Symbol von keinem NTSymbol gefolgt ist, dann muss es zumindest die Alternative in der aktuellen Regel geben, wo das Band-Symbol von einem NTSymbol (NTNext) gefolgt wird.
-Zu Beginn werden die Folgezustände von den Band-Symbol ohne folgenden NTSymbol ermittelt.
-Kann also ein End-Zustand sein.
--->
 
 #### grammarOf():
 
@@ -245,6 +234,7 @@ Code:
   cout << "dfa->accepts(\"zbb\")   = " << boolalpha << dfa->accepts("z")  << endl;
   cout << endl;
 
+  delete dfa;
   delete fab;
 ```
 
@@ -454,7 +444,7 @@ bool MooreDFA::accepts(const Tape &tape) const {
 
 ```cpp
   void TimeAccept(NFA* abc, void (*func)(NFA* abc)) {
-    stopwatch::Stopwatch sw{}; // not going to post this entire class here
+    stopwatch::Stopwatch sw{}; // implemented by myself
     sw.start();
     func(abc);
     cout << "Elapsed time: " << sw.elapsed<TimeFormat::MICROSECONDS>() << " micro sec" << endl;
@@ -624,11 +614,8 @@ d(Z, "(", $)            = (Z, $ "(")
 d(Z, INTEGER, $)        = (Z, $ INTEGER)
 d(Z, BOOLEAN, $)        = (Z, $ BOOLEAN)
 d(Z, CHAR, $)           = (Z, $ CHAR)
-//d(Z, VAR, Declaration)  = (Z, Declaration VAR)
-//d(Z, ";", Declaration)  = (Z, Declaration ";")
-//+ 76 more
 
-//(|VT| * |V| == 13 * 7 == 91 mögliche Kombinationen, um Papier zu sparen, enumeriere ich die jetzt nicht)
+// to be honest, i'm not sure if the other NT symbols also qualify as Kellersymbole, so I just assumed V = {$} 
 
 S3:
 S(Z, ε, $Declaration) = (R, ε)

@@ -321,12 +321,6 @@ try {
   cout << "1.a) faOf" << endl;
   cout << "------" << endl;
   cout << endl;
-  /*
-  GrammarBuilder gb{"G(B):           \n\
-                    B -> b | b R | b E    \n\
-                    R -> b | z | b R | z R \n\
-                    E -> e"};
-                    */
   
   GrammarBuilder gb{string("G.txt")};
 
@@ -370,6 +364,7 @@ try {
   cout << "dfa->accepts(\"zbb\")      = " << boolalpha << dfa->accepts("z")  << endl;
   cout << endl;
 
+  delete dfa;
   delete fab;
 
   #pragma endregion HUE2A
@@ -587,6 +582,7 @@ try {
   delete fab;
 
   #pragma endregion HUE3D
+  
 /*
   cout << "2. NFA" << endl;
   cout << "------" << endl;
