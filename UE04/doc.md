@@ -52,8 +52,6 @@ int yywrap() {
 
 %{
     #include <stdio.h>
-
-    extern
 %}
 
 %token NUMBER
@@ -147,3 +145,217 @@ void main() {
 ```
 
 # 2. MiniCpp: Scanner und Parser mit (f)lex und yacc/bison UND …
+
+```
+MiniCpp: MiniCppList
+  ;
+
+MiniCppList: /* eps */
+  | MiniCppList ConstDef 
+  | MiniCppList VarDef
+  | MiniCppList FuncDecl
+  | MiniCppList FuncDef
+  | MiniCppList ';'
+  ;
+
+ConstDef: CONST Type IDENT Init IdentList ';'
+  ;
+  
+IdentList: /* eps */
+  | IdentList ',' IDENT Init
+  ;
+
+Init: '=' FALSE
+  | '=' TRUE
+  | '=' NULLPTR
+  | '=' '+' NUMBER
+  | '=' '-' NUMBER
+  ;
+
+FuncDecl: FuncHead ';'
+  ;
+
+FuncDef: FuncHead Block
+  ;
+
+FuncHead: Type '*' IDENT '(' ')'
+  | Type IDENT '(' ')'
+  | Type IDENT '(' FormParList ')'
+  | Type '*' IDENT '(' FormParList ')'
+  ;
+
+FormParList: VOID
+  | TypeIdent TypeIdentList
+  ;
+
+TypeIdentList: /* eps */
+  | TypeIdentList ',' TypeIdent
+  ;
+
+TypeIdent: Type '*' IDENT '[' ']'
+  | Type '*' IDENT
+  | Type IDENT '[' ']'
+  ;
+
+Type: VOID
+  | BOOL
+  | INT
+  ;
+
+Block: '{' BlockList '}'
+  ;
+
+BlockList: /* eps */
+  | BlockList ConstDef
+  | BlockList VarDef
+  | BlockList Stat
+  ;
+
+Stat: EmptyStat 
+  | BlockStat
+  | ExprStat
+  | IfStat
+  | WhileStat
+  | BreakStat
+  | InputStat
+  | OutputStat
+  | DeleteStat
+  | ReturnStat
+  ; 
+
+EmptyStat: ';'
+  ;
+
+BlockStat: Block
+  ;
+
+ExprStat: Expr
+  ;
+
+IfStat: IF '(' Expr ')' Stat StatList
+  ;
+
+StatList: /* eps */
+  | StatList ELSE Stat
+  ;
+
+WhileStat: WHILE '(' Expr ')'
+  ;
+
+BreakStat: BREAK ';'
+  ;
+
+InputStat: CIN '>>' IDENT ';'
+  ;
+
+OutputStat: COUT CoutRight CoutRightList ';'
+  ;
+
+CoutRightList: /* eps */
+  | CoutRightList CoutRight
+  ;
+
+CoutRight: '<<' Expr
+  | '<<' STRING
+  | '<<' ENDL
+  ;
+
+DeleteStat: DELETE '[' ']' IDENT ';'
+  ;
+
+ReturnStat: RETURN ';'
+  | RETURN Expr ';'
+  ;
+
+Expr: OrExpr OrExprList
+  ;
+
+OrExprList: /* eps */
+  | OrExprList '=' OrExpr
+  | OrExprList '+=' OrExpr
+  | OrExprList '-=' OrExpr
+  | OrExprList '*=' OrExpr
+  | OrExprList '/=' OrExpr
+  | OrExprList '%=' OrExpr
+  ;
+
+OrExpr: AndExpr AndExprList
+  ;
+
+AndExprList: /* eps */
+  | AndExprList '||' AndExpr
+  ;
+
+AndExpr: RelExpr RelExprList
+  ;
+
+RelExprList: /* eps */
+  | RelExprList '&&' RelExpr
+  ;
+
+RelExpr: SimpleExpr SimpleExprList
+  ;
+
+SimpleExprList: /* eps */
+  | SimpleExprList '==' SimpleExpr
+  | SimpleExprList '!=' SimpleExpr
+  | SimpleExprList '<' SimpleExpr
+  | SimpleExprList '<=' SimpleExpr
+  | SimpleExprList '>' SimpleExpr
+  | SimpleExprList '>=' SimpleExpr
+  ;
+
+SimpleExpr: '+' Term TermList
+  | '-' Term TermList
+  | Term TermList
+  ;
+
+TermList: /* eps */
+  | TermList '+' Term
+  | TermList '-' Term
+  ;
+
+Term: NotFact NotFactList
+  ;
+
+NotFactList: /* eps */
+  | NotFactList '*' NotFact
+  | NotFactList '/' NotFact
+  | NotFactList '%' NotFact
+  ;
+
+NotFact: Fact
+  | '!' Fact
+  ;
+
+Fact: FALSE
+  | TRUE
+  | NULLPTR
+  | NUMBER
+  | DudeWtf
+  | NEW Type '[' Expr ']'
+  | '(' Expr ')'
+  ;
+
+DudeWtf: OptDecrOrIncr IDENT WeirdIdentShit OptDecrOrIncr
+  ;
+
+WeirdIdentShit: /* eps */
+  | '[' Expr ']'
+  | '(' ActParList ')'
+  | '(' ')'
+  ;
+
+OptDecrOrIncr: /* eps */
+  | '++'
+  | '--'
+  ;
+
+ActParList: Expr ExprList
+  ;
+
+ExprList: /* eps */
+  | ExprList ',' Expr
+  ;
+
+```
