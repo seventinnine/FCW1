@@ -535,15 +535,6 @@ TypeIdent       -> INTEGER | BOOLEAN | CHAR .
 ## b)
 
 ```
-DKA = (Z, VT , V, d, z1 , S, F)
-VT = {VAR, ident, number, ";", ":", ",", ")", "(", OF, ARRAY, INTEGER, BOOLEAN, CHAR}
-V = {Declaration, VarDeclList, VarDecl, IdentList, Type, TypeIdent}
-Z = {z1}
-S = Declaration
-F = {z1}
-```
-
-```
 S1:
 d(Z, ε, Declaration)    = (Z, VAR)
 d(Z, ε, Declaration)    = (Z, VarDeclList VAR)
@@ -577,15 +568,6 @@ d(Z, CHAR, CHAR)        = (Z, ε)
 ## c)
 
 ```
-DKA = (Z, VT , V, d, z1 , S, F)
-VT = {VAR, ident, number, ";", ":", ",", ")", "(", OF, ARRAY, INTEGER, BOOLEAN, CHAR}
-V = {$}
-Z = {z1}
-S = Declaration
-F = {z1}
-```
-
-```
 S1:
 d(Z, ε, VAR)                                = (Z, Declaration)
 d(Z, ε, VAR VarDeclList)                    = (Z, Declaration)
@@ -614,12 +596,16 @@ d(Z, "(", $)            = (Z, $ "(")
 d(Z, INTEGER, $)        = (Z, $ INTEGER)
 d(Z, BOOLEAN, $)        = (Z, $ BOOLEAN)
 d(Z, CHAR, $)           = (Z, $ CHAR)
-
-// to be honest, i'm not sure if the other NT symbols also qualify as Kellersymbole, so I just assumed V = {$} 
+d(Z, CHAR, Declaration) = (Z, Declaration CHAR)
+... 13*7 - 1 more (alle weiteren Kombinationen mit TSymbol + NTSymbol)
 
 S3:
 S(Z, ε, $Declaration) = (R, ε)
 ```
+
+<div style="page-break-after: always; visibility: hidden"> 
+\pagebreak 
+</div>
 
 ## d)
 
