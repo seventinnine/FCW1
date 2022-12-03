@@ -88,10 +88,7 @@
 # define YYERROR_VERBOSE 0
 #endif
 
-/* In a future release of Bison, this section will be replaced
-   by #include "MiniC.tab.h".  */
-#ifndef YY_YY_MINIC_TAB_H_INCLUDED
-# define YY_YY_MINIC_TAB_H_INCLUDED
+
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -140,12 +137,12 @@ int yyparse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
 
-#endif /* !YY_YY_MINIC_TAB_H_INCLUDED  */
+
 
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 149 "MiniC.tab.c"
+#line 146 "MiniC.tab.c"
 
 #ifdef short
 # undef short
@@ -1360,7 +1357,7 @@ yyreduce:
     {
       
 /* Line 1792 of yacc.c  */
-#line 1364 "MiniC.tab.c"
+#line 1361 "MiniC.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

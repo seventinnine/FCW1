@@ -1,0 +1,14 @@
+void f3() {
+    main();
+}
+void f2() {
+    f3();
+}
+void f1(int i) {
+    f2();
+    f1();
+}
+
+void main() {
+  f1(69);
+} // main

@@ -4,12 +4,38 @@
 ====================================================================*/
 
 %{
-    #include <stdio.h>
+  #include <stdio.h>
+  #include <stdbool.h>
+  #include <string.h>
+  #include <stdlib.h>
+  
+  // continously concat already processed function calls
+  char* currGraphBody;
+
+  // list of function names
+  // no stack needed as grammar does not 
+  // support nested function definitions
+  char* calledFuncs[100]; // max 100 called funcs per func
+  
+  // creates an edge from node to all nodes in calledFuncs
+  // and clears calledFuncs
+  void addEdges(char* node);
+
+  // adds node to calledFuncs
+  void addCalledFunc(char* node);
+
 %}
+
+%union {
+  char* iIdent;
+} /* union */
+
+%token <iIdent> IDENT
+
+%type <iIdent> WeirdIdentStuff FuncHead
 
 %token NUMBER
 %token STRING
-%token IDENT
 %token CONST
 %token FALSE
 %token TRUE
@@ -48,7 +74,8 @@
 
 %%
 
-MiniCpp: MiniCppList
+// print graph def + edges
+MiniCpp: MiniCppList { printf("digraph program {\n\tfontname=\"Helvetica,Arial,sans-serif\"\n\tnode [fontname=\"Helvetica,Arial,sans-serif\"]\n\tedge [fontname=\"Helvetica,Arial,sans-serif\"]\n\trankdir=LR;\n\tnode [shape = box];\n%s\n}", currGraphBody); }
   ;
 
 MiniCppList: /* eps */
@@ -89,13 +116,15 @@ VarDefIdent: '*' IDENT Init
 FuncDecl: FuncHead ';'
   ;
 
-FuncDef: FuncHead Block
+// add all edges from FuncHead (ident name) to saved func names
+FuncDef: FuncHead Block { addEdges($1); }
   ;
 
-FuncHead: Type '*' IDENT '(' ')'
-  | Type IDENT '(' ')'
-  | Type IDENT '(' FormParList ')'
-  | Type '*' IDENT '(' FormParList ')'
+// retrieve ident name for node
+FuncHead: Type '*' IDENT '(' ')'        { $$ = $3; }
+  | Type IDENT '(' ')'                  { $$ = $2; }
+  | Type IDENT '(' FormParList ')'      { $$ = $2; }
+  | Type '*' IDENT '(' FormParList ')'  { $$ = $3; }
   ;
 
 FormParList: VOID
@@ -109,6 +138,7 @@ TypeIdentList: /* eps */
 TypeIdent: Type '*' IDENT '[' ']'
   | Type '*' IDENT
   | Type IDENT '[' ']'
+  | Type IDENT
   ;
 
 Type: VOID
@@ -219,12 +249,12 @@ SimpleExprList: /* eps */
   | SimpleExprList OPGREATEREQUAL SimpleExpr
   ;
 
-SimpleExpr: '+' TermList
-  | '-' TermList
-  | TermList
+SimpleExpr: '+' Term TermList
+  | '-' Term TermList
+  | Term TermList
   ;
 
-TermList: Term
+TermList: /* eps */
   | TermList '+' Term
   | TermList '-' Term
   ;
@@ -251,13 +281,14 @@ Fact: FALSE
   | '(' Expr ')'
   ;
 
-DudeWtf: OptDecrOrIncr IDENT WeirdIdentShit OptDecrOrIncr
+DudeWtf: OptDecrOrIncr WeirdIdentStuff OptDecrOrIncr
   ;
 
-WeirdIdentShit: /* eps */
-  | '[' Expr ']'
-  | '(' ActParList ')'
-  | '(' ')'
+// save func name (ident) to list of called funcs
+WeirdIdentStuff: IDENT
+  | IDENT '[' Expr ']'
+  | IDENT '(' ActParList ')' { addCalledFunc($1); }
+  | IDENT '(' ')'            { addCalledFunc($1); }
   ;
 
 OptDecrOrIncr: /* eps */
@@ -265,10 +296,10 @@ OptDecrOrIncr: /* eps */
   | OPDECREMENT
   ;
 
-ActParList: Expr ExprList
+ActParList: ExprList
   ;
 
-ExprList: /* eps */
+ExprList: Expr
   | ExprList ',' Expr
   ;
  
@@ -280,8 +311,51 @@ int yyerror(char *msg) {
   return 0;
 } /*yyerror*/
 
+// concats 2 malloc'd strings
+char* myconcat(char *s1, char *s2) {
+  // s1 (currGraphBody) is null at first => just take s2
+  if (s1 == NULL) return s2;
+  char *result = malloc(strlen(s1) + strlen(s2) + 1);
+  // assume malloc worked
+  strcpy(result, s1);
+  strcat(result, s2);
+  free(s1);
+  free(s2);
+  return result;
+}
+
+void appendEdge(char* node, char* func) {
+  // create buffer with enough space for formatted printing
+  // +6 for " -> " and "\n\t"
+  char* buf = malloc(strlen(node) + strlen(func) + 1 + 6); 
+
+  sprintf(buf, "\n\t%s -> %s", node, func);
+
+  currGraphBody = myconcat(currGraphBody, buf);
+
+  // free buf
+  free(buf);
+}
+
+int funcCount = 0;
+
+void addCalledFunc(char* node) {
+  calledFuncs[funcCount] = node;
+  funcCount++;
+}
+
+void addEdges(char* node) {
+  for (int i = 0; i < funcCount; i++) {
+    //printf("%s -> %s\n\t", node, calledFuncs[i]);
+    appendEdge(node, calledFuncs[i]);
+    free(calledFuncs[i]);
+  }
+  funcCount = 0;
+}
+
 int main(int argc, char *argv[]) {
   yyparse();
+  free(currGraphBody);
   return 0;
 } /*main*/
 

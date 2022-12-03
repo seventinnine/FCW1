@@ -46,9 +46,9 @@ extern int yydebug;
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     NUMBER = 258,
-     STRING = 259,
-     IDENT = 260,
+     IDENT = 258,
+     NUMBER = 259,
+     STRING = 260,
      CONST = 261,
      FALSE = 262,
      TRUE = 263,
@@ -88,7 +88,17 @@ extern int yydebug;
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+{
+/* Line 2058 of yacc.c  */
+#line 29 "MiniCpp.y"
+
+  char* iIdent;
+
+
+/* Line 2058 of yacc.c  */
+#line 101 "MiniCpp.tab.h"
+} YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
