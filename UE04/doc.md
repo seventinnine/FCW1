@@ -686,7 +686,7 @@ First of all müssen wir mal identifizieren, welche Regel und Alternative als Fu
 
 Das wäre diese hier:
 
-![](/imgs/2b.PNG)
+![](/.imgs/2b.PNG)
 
 Bottom-Up-Syntaxanalyse mit Ausgangsparameter. Da immer zuerst die aufgerufenen Funktionen geparsed werden, muss mit dem ausgeben der Kante im Graph gewartet werden, bis auch die rufende Funktion geparsed wurde. Ich speichere mir deshalb alle gerufenen Funktions-Namen in ein char\[100\] (100 Funktionsnamen sollten für's erste mal ausreichen). Wenn dann auch die **FuncDecl** geparsed wurde, werden für alle gespeicherten Funktions-Namen eine Kante von **FuncDecl** zu Funktions-Name erstellt.
 
@@ -876,11 +876,11 @@ Input: Sieve.mcpp (iot's on the excersise sheet)
 
 Output:
 
-![](/imgs/2b1a.PNG)
+![](./imgs/2b1a.PNG)
 
 GraphViz:
 
-![](/imgs/2b1b.PNG)
+![](./imgs/2b1b.PNG)
 
 #### other.mcpp
 
@@ -905,9 +905,9 @@ void main() {
 
 Output:
 
-![](/imgs/2b2a.PNG)
+![](./imgs/2b2a.PNG)
 
 GraphViz:
 
-![](/imgs/2b2b.PNG)
+![](./imgs/2b2b.PNG)
 
