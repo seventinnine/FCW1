@@ -391,7 +391,7 @@ EmptyStat: ';'
 BlockStat: Block
   ;
 
-ExprStat: Expr
+ExprStat: Expr ';'
   ;
 
 IfStat: IF '(' Expr ')' Stat StatList
@@ -467,9 +467,7 @@ SimpleExprList: /* eps */
   | SimpleExprList OPGREATEREQUAL SimpleExpr
   ;
 
-SimpleExpr: '+' Term TermList
-  | '-' Term TermList
-  | Term TermList
+SimpleExpr: OptSign Term TermList
   ;
 
 TermList: /* eps */
@@ -552,14 +550,13 @@ Mit den Flags "-d" bei Flex sieht man die Matches der Tokens bei der Syntax-Anal
 
 ```
 PS C:\Users\Stefan\Documents\Studium\Master\1. Semester\FCW1\UE\UE04\src\2> ..\Bison-2.7\bison.exe -d -v MiniCpp.y  
-MiniCpp.y: conflicts: 10 shift/reduce
+MiniCpp.y: conflicts: 1 shift/reduce
 ```
 
-Bei 4 Regeln gibts es ambiguities (in Summe 10 shift/reduce-Konflikte). Laut bison-Doku ist Syntaxalanyse trotz shift/reduce-Konfliten möglich, es wird standardmäßig die shift-Operation bevorzugt und sind dann bei der Semantik relevant. Die Konflikte treten auf bei (Option -v generiert .output-File, wo man sich die Konflikte ansehen kann):
-* SimpleExpr/TermList: Die führenden Vorzeichen ('+', '-') bei SimpleExpr und TermList machen Probleme
-* WeirdIdentStuff: '(' ob es FormParList oder ActParList ist 
-* Increment/Decrement-Operatoren bei Expr: kann vor oder nach Expr stehen 
-* If/Else: Dangling-Else-problem
+Bei 1 Regel gibt es ambiguities (nach einem kurzen Blick in das .output-File):
+* IfStat: Dangling-Else-Problem
+
+**Fun-Fact:** ursprünglich wollte ich diese Aufgabe mit 10 shift/reduce-Konflikten abgeben, weil ich selbst nach 4 Stunden suchen nicht darauf gekommen bin, wie ich diese Konflikte beheben kann. Sieve.mcpp ließ sich aber trotzdem parsen. Das Problem: es fehlte bei der Regel für **Expr** das Semi-Kolon am Ende.
 
 ### Output mit Sieve.cpp (ned alles, um Papier zu sparen)
 
@@ -574,9 +571,6 @@ PS C:\Users\Stefan\Documents\Studium\Master\1. Semester\FCW1\UE\UE04\src\2> cat 
 ")
 --accepting rule at line 28 ("//=====================================|====================
 ")
---accepting rule at line 29 ("
-")
---accepting rule at line 67 (";")
 --accepting rule at line 29 ("
 ")
 --accepting rule at line 35 ("void")
@@ -686,7 +680,7 @@ First of all müssen wir mal identifizieren, welche Regel und Alternative als Fu
 
 Das wäre diese hier:
 
-![](/.imgs/2b.PNG)
+![](./imgs/2b.PNG)
 
 Bottom-Up-Syntaxanalyse mit Ausgangsparameter. Da immer zuerst die aufgerufenen Funktionen geparsed werden, muss mit dem ausgeben der Kante im Graph gewartet werden, bis auch die rufende Funktion geparsed wurde. Ich speichere mir deshalb alle gerufenen Funktions-Namen in ein char\[100\] (100 Funktionsnamen sollten für's erste mal ausreichen). Wenn dann auch die **FuncDecl** geparsed wurde, werden für alle gespeicherten Funktions-Namen eine Kante von **FuncDecl** zu Funktions-Name erstellt.
 

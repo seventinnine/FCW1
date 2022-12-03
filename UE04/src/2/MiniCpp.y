@@ -173,7 +173,7 @@ EmptyStat: ';'
 BlockStat: Block
   ;
 
-ExprStat: Expr
+ExprStat: Expr ';'
   ;
 
 IfStat: IF '(' Expr ')' Stat StatList
