@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 
 ```
 ..\Flex-2.5.37\flex.exe --yylineno MiniC.l
-..\Bison-2.7\bison.exe -g -d MiniC.y
+..\Bison-2.7\bison.exe -d MiniC.y
 gcc lex.yy.c MiniC.tab.c -o MiniC.exe
 MiniC.exe < SVP.mc
 ```
@@ -216,7 +216,7 @@ new                     { return NEW; }
 "+="                    { return ADDASSIGN; }
 "-="                    { return SUBTRACTASSIGN; }
 "*="                    { return MULTIPLYASSIGN; }
-"\\="                   { return DIVIDEASSIGN; }
+"/="                    { return DIVIDEASSIGN; }
 "%="                    { return MODULOASSIGN; }
 "++"                    { return OPINCREMENT; }
 "--"                    { return OPDECREMENT; }
@@ -544,7 +544,7 @@ gcc lex.yy.c MiniCpp.tab.c -o MiniCpp.exe
 cat .\Sieve.mcpp | .\MiniCpp.exe (Powershell this time)
 ```
 
-Mit den Flags "-d" bei Flex sieht man die Matches der Tokens bei der Syntax-Analyse des Inputs
+Mit den Flags "-d" bei Flex sieht man die Matches der Tokens bei der Syntax-Analyse des Inputs, mit "-v" das .output-File.
 
 ### Output
 

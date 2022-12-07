@@ -49,7 +49,7 @@ new                     { return NEW; }
 "+="                    { return ADDASSIGN; }
 "-="                    { return SUBTRACTASSIGN; }
 "*="                    { return MULTIPLYASSIGN; }
-"\\="                   { return DIVIDEASSIGN; }
+"/="                    { return DIVIDEASSIGN; }
 "%="                    { return MODULOASSIGN; }
 "++"                    { return OPINCREMENT; }
 "--"                    { return OPDECREMENT; }
