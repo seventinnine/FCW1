@@ -686,7 +686,7 @@ Bottom-Up-Syntaxanalyse mit Ausgangsparameter. Da immer zuerst die aufgerufenen 
 
 Da der Output auf der Konsole von Graphviz geparsed werden soll, können die Calls einer Funktion nicht einfach gleich aus der Konsole ausgegeben werden, da ich das Grundgerüst vom Graphen nur mithilfe von ATGs ausgeben darf (in der **main** von der .y-Datei ausgeben wäre ja cheaten and we don't do that here).
 In der Regel **MiniCpp** werden das Grundgerüst + alle generierten Kanten ausgegeben.
-Die generierten Kanten einer Funktion werden einfach mit den generierten Kanten der nächsten geparsen **FuncDecl** kombiniert (string concat, wobei extra auch memory leaks geachtet wurde).
+Die generierten Kanten einer Funktion werden einfach mit den generierten Kanten der nächsten geparsen **FuncDecl** kombiniert (string concat, wobei extra auf memory leaks geachtet wurde).
 
 ### Änderungen im Quelltext
 
@@ -866,7 +866,7 @@ int main(int argc, char *argv[]) {
 
 #### Sieve.mcpp
 
-Input: Sieve.mcpp (iot's on the excersise sheet)
+Input: Sieve.mcpp (it's on the excercise sheet)
 
 Output:
 
