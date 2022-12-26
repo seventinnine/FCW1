@@ -1,0 +1,82 @@
+COMPILER MiniC
+
+Set<Tuple<int, string> > /* BAD!abstand zwischen > > */>>
+SEM<<private static int numStats = 0;>>
+
+CHARACTER SETS
+  digit      = '0' .. '9'.
+  whiteSpace = CHR(9) + EOL IGNORE. /*' ' ignored by default*/
+  letter     = 'a' .. 'z' + 'A' .. 'Z' + '_'.
+
+COMMENTS
+  FROM '/*' TO '*/' .
+  FROM '//' TO EOL .
+
+KEYWORDS
+  'void'. 'main'. 'int'. 'scanf'. 'printf'. 'if'. 'else'.
+
+TOKENS                      
+  '+'.  '-'.  '*'.  '/'.  '('.  ')'. 
+  '{'. '}'.
+  ','. ';'. '='. 
+
+TOKEN CLASSES           
+  number<<out int n>> = 
+    digit { digit }           LEX<<n = Convert.ToInt32(tokenStr);>>.
+
+  ident<<out string idStr>> =
+    letter { letter | digit } LEX<<idStr = tokenStr;>>
+  .
+
+NONTERMINALS
+  MiniC.
+  VarDecl.
+  StatSeq.
+  Stat.
+  IfStat.
+  Expr.
+  Term.
+  Fact.
+
+RULES
+
+  MiniC = 'void' 'main' '(' ')' '{'
+    [ VarDecl ]
+    StatSeq
+    '}' SEM<<System.Console.WriteLine("Number of Statements: " + numStats);>>.
+
+  VarDecl =
+    'int' ident<<out string id1>> { ',' ident<<out string id2>> } ';' .
+
+  StatSeq =
+    Stat { Stat } .
+
+  Stat =
+    (';'
+    | ident<<out string id1>> '=' Expr ';'
+    | 'scanf' '(' ident<<out string id2>> ')' ';'
+    | 'printf' '(' Expr ')' ';'
+    | IfStat ) SEM<<numStats++;>>
+    .
+
+IfStat = 'if' '(' Expr ')' Stat [ 'else' Stat ] .
+
+  Expr = 
+    Term             
+    { '+' Term
+    | '-' Term
+    }.
+    
+  Term = 
+    Fact
+    { '*' Fact
+    | '/' Fact
+    }.
+    
+  Fact =     LOCAL<<int f = 0; string id = "";>>
+      ident<<out id>>
+    | number<<out f>>
+    | '(' Expr ')'.
+
+END MiniC.
+
