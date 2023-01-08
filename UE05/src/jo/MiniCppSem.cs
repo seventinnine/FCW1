@@ -34,88 +34,69 @@ public class MiniCppSem {
   // *** start of global SYN and SEM declarations from ATG ***
   
   private static int numStats = 0;
-  private static int cyclomaticComplexity = 1;
-  private static System.Collections.Generic.SortedSet<string> n1 = new System.Collections.Generic.SortedSet<string>();
-  private static System.Collections.Generic.SortedSet<string> n2 = new System.Collections.Generic.SortedSet<string>();
-  private static int N1 = 0;
-  private static int N2 = 0;
-  
-  private static void PrintAnalysisResults() {
-    System.Console.WriteLine("using .NET Framework " + System.Environment.Version);
-  
-    System.Console.WriteLine("b)");
-    System.Console.WriteLine("  Lines of Code:         " + MiniCppLex.curLine);
-    System.Console.WriteLine("  Number of statements:  " + numStats);
-    System.Console.WriteLine("  Cyclomatic Complexity: " + cyclomaticComplexity);
-  
-    string n1AsString = // cannot do "using System.Linq" here :(
-      System.Linq.Enumerable.Aggregate(n1, (l, r) => l.ToString() + ", " + r.ToString());
-    string n2AsString =
-      System.Linq.Enumerable.Aggregate(n2, (l, r) => l.ToString() + ", " + r.ToString());
-    int n = n1.Count + n2.Count;
-    int N = N1 + N2;
-    double V = (double)N * System.Math.Log(n, 2);
-    double D = (double)(n1.Count * N2) / (double)(2 * n2.Count);
-    double E = D * V;
-    System.Console.WriteLine("c)");
-    System.Console.WriteLine("  n1: " + n1AsString);
-    System.Console.WriteLine("  n2: " + n2AsString);
-    System.Console.WriteLine("  N1: " + N1);
-    System.Console.WriteLine("  N2: " + N2);
-    System.Console.WriteLine();
-    System.Console.WriteLine("  vocabulary: " + n);
-    System.Console.WriteLine("  length:     " + N);
-    System.Console.WriteLine("  volume:     " + V.ToString("N2"));
-    System.Console.WriteLine("  difficulty: " + D.ToString("N2"));
-    System.Console.WriteLine("  effort:     " + E.ToString("N2"));
+  private static System.Collections.Generic.HashSet<string> operators = new System.Collections.Generic.HashSet<string>();
+  private static System.Collections.Generic.HashSet<string> operands = new System.Collections.Generic.HashSet<string>();
+  private static int numOfOperands = 0;
+  private static int numOfOperators = 0;
+  private static int structuralComplexity = 1;
+  public static void addOperator(string tmp) {
+    operators.Add(tmp);
+    numOfOperators++;
   }
-  
-  private static void AddToN1(string item) {
-    n1.Add(item); N1++;
+  public static void addOperand(string tmp) {
+    Console.WriteLine(tmp);
+    operands.Add(tmp);
+    numOfOperands++;
   }
-  
-  private static void AddToN2(string item) {
-    n2.Add(item); N2++;
-  }
-  
-  // if user selects "[c]ontinue", we have to reset all of our collected data
-  private static void Reset() {
-    numStats = 0;
-    cyclomaticComplexity = 1;
-    n1.Clear();
-    n2.Clear();
-    N1 = 0;
-    N2 = 0;
-  }
-  
 
   // *** end of global SYN and SEM declarations from ATG ***
 
   
 
   private static void NT_MiniCpp() {
+    string idStr = "";
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
-        case 1: // SEM
-          Reset();
-          break;
-        case 2:
+        case 1:
           NT_ConstDef();
           break;
+        case 2:
+          NT_Type();
+          break;
         case 3:
-          NT_MutDef();
+          Lex.GETidentAttr(out idStr);
           break;
         case 4: // SEM
-          PrintAnalysisResults();
+          addOperand("ident"+ idStr);
+          break;
+        case 5:
+          NT_LL1Stuff();
+          break;
+        case 6: // SEM
+          Console.WriteLine("Nr of Statements: " + numStats);
+          Console.WriteLine("Structural Complexity: " + structuralComplexity);
+          Console.WriteLine("Lines of code: " + MiniCppLex.curLine);
+          Console.WriteLine("n1: " + operators.Count + " N1: " + numOfOperators);
+          Console.WriteLine("n2: " + operands.Count + " N2: " + numOfOperands);
+          int n = operators.Count + operands.Count;
+          int N = numOfOperators + numOfOperands;
+          double V = N * Math.Log(n, 2);
+          int D = (operators.Count * numOfOperands) / (2 * operands.Count);
+          Console.WriteLine("Vocabulary n: " + n);
+          Console.WriteLine("Length N: " + N);
+          Console.WriteLine("Volume V: " + V);
+          Console.WriteLine("Difficulty D: " + D);
+          Console.WriteLine("Effort E: " + (D*V));
+
           break;
       } // switch
     } // for
   } // NT_MiniCpp
 
   private static void NT_ConstDef() {
-    string idStr1 = ""; string idStrN = "";
+    string idStr="";
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
@@ -124,19 +105,19 @@ public class MiniCppSem {
           NT_Type();
           break;
         case 2:
-          Lex.GETidentAttr(out idStr1);
+          Lex.GETidentAttr(out idStr);
           break;
         case 3: // SEM
-          AddToN2(idStr1);
+          addOperand("ident"+ idStr);
           break;
         case 4:
           NT_Init();
           break;
         case 5:
-          Lex.GETidentAttr(out idStrN);
+          Lex.GETidentAttr(out idStr);
           break;
         case 6: // SEM
-          AddToN2(idStrN);
+          addOperand("ident"+ idStr);
           break;
         case 7:
           NT_Init();
@@ -146,112 +127,154 @@ public class MiniCppSem {
   } // NT_ConstDef
 
   private static void NT_Init() {
-    int n = 0;
+    string sign = ""; int n = 0;
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
-        case 1:
-          Lex.GETnumberAttr(out n);
+        case 1: // SEM
+          addOperator("=");
           break;
         case 2: // SEM
-          AddToN2(n.ToString());
+          addOperand("false");
+          break;
+        case 3: // SEM
+          addOperand("true");
+          break;
+        case 4: // SEM
+          addOperand("nullptr");
+          break;
+        case 5: // SEM
+          sign = "-";
+          break;
+        case 6:
+          Lex.GETnumberAttr(out n);
+          break;
+        case 7: // SEM
+          addOperand("num"+sign+n);
           break;
       } // switch
     } // for
   } // NT_Init
 
-  private static void NT_MutDef() {
-    string idStr = "";
+  private static void NT_VarDef() {
+    string idStr="";
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
         case 1:
-          NT_Type();
+          NT_Init();
           break;
         case 2:
           Lex.GETidentAttr(out idStr);
           break;
-        case 3:
+        case 3: // SEM
+          addOperand("ident"+ idStr);
+          break;
+        case 4:
           NT_Init();
-          break;
-        case 4: // SEM
-          AddToN2(idStr);
-          break;
-        case 5:
-          NT_FormParList();
-          break;
-        case 6: // SEM
-          AddToN1("()");
-          break;
-        case 7:
-          NT_Block();
-          break;
-      } // switch
-    } // for
-  } // NT_MutDef
-
-  private static void NT_VarDef() {
-    string idStr1 = ""; string idStrN = "";
-    for (;;) {
-      switch (Syn.Interpret()) {
-        case 0:
-          return;
-        case 1:
-          NT_Type();
-          break;
-        case 2:
-          Lex.GETidentAttr(out idStr1);
-          break;
-        case 3:
-          NT_Init();
-          break;
-        case 4: // SEM
-          AddToN2(idStr1);
-          break;
-        case 5:
-          Lex.GETidentAttr(out idStrN);
-          break;
-        case 6:
-          NT_Init();
-          break;
-        case 7: // SEM
-          AddToN2(idStrN);
           break;
       } // switch
     } // for
   } // NT_VarDef
 
-  private static void NT_FormParList() {
+  private static void NT_LL1Stuff() {
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
         case 1:
-          NT_FormParTypeRight();
+          NT_VarDef();
           break;
         case 2:
-          NT_Type();
+          NT_FuncHead();
           break;
         case 3:
-          NT_FormParTypeRight();
+          NT_FuncStuff();
+          break;
+      } // switch
+    } // for
+  } // NT_LL1Stuff
+
+  private static void NT_FuncStuff() {
+    for (;;) {
+      switch (Syn.Interpret()) {
+        case 0:
+          return;
+        case 1:
+          NT_FuncDecl();
+          break;
+        case 2:
+          NT_FuncDef();
+          break;
+      } // switch
+    } // for
+  } // NT_FuncStuff
+
+  private static void NT_FuncDecl() {
+    for (;;) {
+      switch (Syn.Interpret()) {
+        case 0:
+          return;
+      } // switch
+    } // for
+  } // NT_FuncDecl
+
+  private static void NT_FuncDef() {
+    for (;;) {
+      switch (Syn.Interpret()) {
+        case 0:
+          return;
+        case 1:
+          NT_Block();
+          break;
+      } // switch
+    } // for
+  } // NT_FuncDef
+
+  private static void NT_FuncHead() {
+    for (;;) {
+      switch (Syn.Interpret()) {
+        case 0:
+          return;
+        case 1:
+          NT_FormParList();
+          break;
+      } // switch
+    } // for
+  } // NT_FuncHead
+
+  private static void NT_FormParList() {
+    string idStr="";
+    for (;;) {
+      switch (Syn.Interpret()) {
+        case 0:
+          return;
+        case 1:
+          NT_VoidRule();
+          break;
+        case 2:
+          Lex.GETidentAttr(out idStr);
+          break;
+        case 3: // SEM
+          addOperand("ident"+ idStr);
           break;
         case 4:
-          NT_FormParTypeRight();
-          break;
-        case 5:
           NT_Type();
           break;
-        case 6:
-          NT_FormParTypeRight();
+        case 5:
+          Lex.GETidentAttr(out idStr);
+          break;
+        case 6: // SEM
+          addOperand("ident"+ idStr);
           break;
       } // switch
     } // for
   } // NT_FormParList
 
-  private static void NT_FormParTypeRight() {
-    string idStr = "";
+  private static void NT_VoidRule() {
+    string idStr="";
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
@@ -259,9 +282,21 @@ public class MiniCppSem {
         case 1:
           Lex.GETidentAttr(out idStr);
           break;
+        case 2: // SEM
+          addOperand("ident"+ idStr);
+          break;
+        case 3:
+          NT_Type();
+          break;
+        case 4:
+          Lex.GETidentAttr(out idStr);
+          break;
+        case 5: // SEM
+          addOperand("ident"+ idStr);
+          break;
       } // switch
     } // for
-  } // NT_FormParTypeRight
+  } // NT_VoidRule
 
   private static void NT_Type() {
     for (;;) {
@@ -273,6 +308,7 @@ public class MiniCppSem {
   } // NT_Type
 
   private static void NT_Block() {
+    string idStr="";
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
@@ -281,13 +317,19 @@ public class MiniCppSem {
           NT_ConstDef();
           break;
         case 2:
-          NT_VarDef();
+          NT_Type();
           break;
         case 3:
-          NT_Stat();
+          Lex.GETidentAttr(out idStr);
           break;
         case 4: // SEM
-          AddToN1("{}");
+          addOperand("ident"+ idStr);
+          break;
+        case 5:
+          NT_VarDef();
+          break;
+        case 6:
+          NT_Stat();
           break;
       } // switch
     } // for
@@ -310,25 +352,31 @@ public class MiniCppSem {
         case 4:
           NT_IfStat();
           break;
-        case 5:
-          NT_WhileStat();
+        case 5: // SEM
+          structuralComplexity++;
           break;
         case 6:
-          NT_BreakStat();
+          NT_WhileStat();
           break;
-        case 7:
-          NT_InputStat();
+        case 7: // SEM
+          structuralComplexity++;
           break;
         case 8:
-          NT_OutputStat();
+          NT_BreakStat();
           break;
         case 9:
-          NT_DeleteStat();
+          NT_InputStat();
           break;
         case 10:
+          NT_OutputStat();
+          break;
+        case 11:
+          NT_DeleteStat();
+          break;
+        case 12:
           NT_ReturnStat();
           break;
-        case 11: // SEM
+        case 13: // SEM
           numStats++;
           break;
       } // switch
@@ -374,7 +422,7 @@ public class MiniCppSem {
         case 0:
           return;
         case 1: // SEM
-          cyclomaticComplexity++; AddToN1("if");
+          addOperator("if");
           break;
         case 2:
           NT_Expr();
@@ -383,7 +431,7 @@ public class MiniCppSem {
           NT_Stat();
           break;
         case 4: // SEM
-          AddToN1("else");
+          addOperator("else");
           break;
         case 5:
           NT_Stat();
@@ -398,7 +446,7 @@ public class MiniCppSem {
         case 0:
           return;
         case 1: // SEM
-          cyclomaticComplexity++; AddToN1("while");
+          addOperator("while");
           break;
         case 2:
           NT_Expr();
@@ -416,67 +464,91 @@ public class MiniCppSem {
         case 0:
           return;
         case 1: // SEM
-          AddToN1("break");
+          addOperator("break");
           break;
       } // switch
     } // for
   } // NT_BreakStat
 
   private static void NT_InputStat() {
-    string idStr = "";
+    string idStr="";
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
         case 1: // SEM
-          AddToN1("cin");
+          addOperator("cin");
           break;
-        case 2:
+        case 2: // SEM
+          addOperator("cinSy");
+          break;
+        case 3:
           Lex.GETidentAttr(out idStr);
+          break;
+        case 4: // SEM
+          addOperand("ident"+ idStr);
           break;
       } // switch
     } // for
   } // NT_InputStat
 
   private static void NT_OutputStat() {
-    string str = "";
+    string str="";
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
         case 1: // SEM
-          AddToN1("cout");
+          addOperator("cout");
           break;
-        case 2:
-          NT_Expr();
+        case 2: // SEM
+          addOperator("coutSy");
           break;
         case 3:
-          Lex.GETstringAttr(out str);
-          break;
-        case 4: // SEM
-          AddToN2(str);
-          break;
-        case 5:
           NT_Expr();
           break;
-        case 6:
+        case 4:
           Lex.GETstringAttr(out str);
           break;
+        case 5: // SEM
+          addOperand("str"+str);
+          break;
+        case 6: // SEM
+          addOperator("endl");
+          break;
         case 7: // SEM
-          AddToN2(str);
+          addOperator("coutSy");
+          break;
+        case 8:
+          NT_Expr();
+          break;
+        case 9:
+          Lex.GETstringAttr(out str);
+          break;
+        case 10: // SEM
+          addOperand("str"+str);
+          break;
+        case 11: // SEM
+          addOperator("endl");
           break;
       } // switch
     } // for
   } // NT_OutputStat
 
   private static void NT_DeleteStat() {
-    string idStr = "";
+    string idStr="";
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
-        case 1:
+        case 1: // SEM
+          addOperator("delete");
+          break;
+        case 2:
           Lex.GETidentAttr(out idStr);
+          break;
+        case 3: // SEM
+          addOperand("ident"+ idStr);
           break;
       } // switch
     } // for
@@ -487,7 +559,10 @@ public class MiniCppSem {
       switch (Syn.Interpret()) {
         case 0:
           return;
-        case 1:
+        case 1: // SEM
+          addOperator("return");
+          break;
+        case 2:
           NT_Expr();
           break;
       } // switch
@@ -503,22 +578,22 @@ public class MiniCppSem {
           NT_OrExpr();
           break;
         case 2: // SEM
-          AddToN1("=");
+          operators.Add("="); numOfOperators++;
           break;
         case 3: // SEM
-          AddToN1("+=");
+          operators.Add("+="); numOfOperators++;
           break;
         case 4: // SEM
-          AddToN1("-=");
+          operators.Add("-="); numOfOperators++;
           break;
         case 5: // SEM
-          AddToN1("*=");
+          operators.Add("*="); numOfOperators++;
           break;
         case 6: // SEM
-          AddToN1("/=");
+          operators.Add("/="); numOfOperators++;
           break;
         case 7: // SEM
-          AddToN1("%=");
+          operators.Add("%="); numOfOperators++;
           break;
         case 8:
           NT_OrExpr();
@@ -536,7 +611,7 @@ public class MiniCppSem {
           NT_AndExpr();
           break;
         case 2: // SEM
-          AddToN1("||");
+          addOperator("||");
           break;
         case 3:
           NT_AndExpr();
@@ -554,7 +629,7 @@ public class MiniCppSem {
           NT_RelExpr();
           break;
         case 2: // SEM
-          AddToN1("&&");
+          addOperator("&&");
           break;
         case 3:
           NT_RelExpr();
@@ -572,22 +647,22 @@ public class MiniCppSem {
           NT_SimpleExpr();
           break;
         case 2: // SEM
-          AddToN1("==");
+          addOperator("==");
           break;
         case 3: // SEM
-          AddToN1("!=");
+          addOperator("!=");
           break;
         case 4: // SEM
-          AddToN1("<");
+          addOperator("smaller");
           break;
         case 5: // SEM
-          AddToN1("<=");
+          addOperator("smallereq");
           break;
         case 6: // SEM
-          AddToN1(">");
+          addOperator("greater");
           break;
         case 7: // SEM
-          AddToN1(">=");
+          addOperator("greaterEq");
           break;
         case 8:
           NT_SimpleExpr();
@@ -597,114 +672,129 @@ public class MiniCppSem {
   } // NT_RelExpr
 
   private static void NT_SimpleExpr() {
+    string sign = ""; int n = 0; bool isNum = false;
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
         case 1: // SEM
-          AddToN1("+");
+          sign = "-";
           break;
-        case 2: // SEM
-          AddToN1("-");
+        case 2:
+          NT_Term(out isNum, out n);
           break;
-        case 3:
-          NT_Term();
+        case 3: // SEM
+          if(isNum) addOperand("num"+sign+n);
           break;
         case 4: // SEM
-          AddToN1("+");
+          addOperator("+");
           break;
         case 5: // SEM
-          AddToN1("-");
+          addOperator("-");
           break;
         case 6:
-          NT_Term();
+          NT_Term(out isNum, out n);
           break;
       } // switch
     } // for
   } // NT_SimpleExpr
 
-  private static void NT_Term() {
+  private static void NT_Term(out bool isNum, out int n) {
+    isNum = false; n = 0;
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
         case 1:
-          NT_NotFact();
+          NT_NotFact(out isNum, out n);
           break;
         case 2: // SEM
-          AddToN1("*");
+          addOperator("*");
           break;
         case 3: // SEM
-          AddToN1("/");
+          addOperator("/");
           break;
         case 4: // SEM
-          AddToN1("%");
+          addOperator("%");
           break;
         case 5:
-          NT_NotFact();
+          NT_NotFact(out isNum, out n);
           break;
       } // switch
     } // for
   } // NT_Term
 
-  private static void NT_NotFact() {
+  private static void NT_NotFact(out bool isNum, out int n) {
+    isNum = false; n = 0;
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
         case 1: // SEM
-          AddToN1("!");
+          addOperator("!");
           break;
         case 2:
-          NT_Fact();
+          NT_Fact(out isNum, out n);
           break;
       } // switch
     } // for
   } // NT_NotFact
 
-  private static void NT_Fact() {
-    int n = 0; string idStr = "";
+  private static void NT_Fact(out bool isNum, out int n) {
+    string idStr=""; n = 0; isNum = false;
     for (;;) {
       switch (Syn.Interpret()) {
         case 0:
           return;
-        case 1:
-          Lex.GETnumberAttr(out n);
+        case 1: // SEM
+          addOperand("false");
           break;
         case 2: // SEM
-          AddToN1(n.ToString());
+          addOperand("true");
           break;
         case 3: // SEM
-          AddToN1("++");
+          addOperand("nullptr");
           break;
-        case 4: // SEM
-          AddToN1("--");
+        case 4:
+          Lex.GETnumberAttr(out n);
           break;
-        case 5:
+        case 5: // SEM
+          isNum = true;
+          break;
+        case 6: // SEM
+          addOperator("++prefix");
+          break;
+        case 7: // SEM
+          addOperator("--prefix");
+          break;
+        case 8:
           Lex.GETidentAttr(out idStr);
           break;
-        case 6:
-          NT_Expr();
-          break;
-        case 7:
-          NT_ActParList();
-          break;
-        case 8: // SEM
-          AddToN2(idStr);
-          break;
         case 9: // SEM
-          AddToN1("++");
+          addOperand("ident"+ idStr);
           break;
-        case 10: // SEM
-          AddToN1("--");
+        case 10:
+          NT_Expr();
           break;
         case 11:
+          NT_ActParList();
+          break;
+        case 12: // SEM
+          addOperator("++postfix");
+          break;
+        case 13: // SEM
+          addOperator("--postfix");
+          break;
+        case 14: // SEM
+          addOperator("new");
+          break;
+        case 15:
           NT_Type();
           break;
-        case 12:
+        case 16:
           NT_Expr();
           break;
-        case 13:
+        case 17:
           NT_Expr();
           break;
       } // switch

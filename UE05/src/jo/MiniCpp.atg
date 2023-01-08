@@ -1,0 +1,209 @@
+COMPILER MiniCpp
+SEM<<
+private static int numStats = 0;
+private static System.Collections.Generic.HashSet<string> operators = new System.Collections.Generic.HashSet<string>();
+private static System.Collections.Generic.HashSet<string> operands = new System.Collections.Generic.HashSet<string>();
+private static int numOfOperands = 0;
+private static int numOfOperators = 0;
+private static int structuralComplexity = 1;
+public static void addOperator(string tmp) {
+  operators.Add(tmp);
+  numOfOperators++;
+}
+public static void addOperand(string tmp) {
+  Console.WriteLine(tmp);
+  operands.Add(tmp);
+  numOfOperands++;
+}
+>>
+
+
+CHARACTER SETS
+  digit      = '0' .. '9' .
+  letter     = 'a' .. 'z' + 'A' ..'Z' + '_' .
+  whiteSpace = CHR(9) + EOL IGNORE. /*' ' ignored by default*/ 
+  noquote    = ANY - '"' .
+  noquote2   = ANY - "'" .
+
+COMMENTS
+  FROM '/*' TO '*/' .
+  FROM '//' TO EOL .
+
+KEYWORDS
+  'void'. 'int'. 'cout'. 'cin'. 'endl'. 'if'. 'else'. 'new'. 'delete'. 'return'. 'true'. 'false'. 'nullptr'. 'bool'. 'break'. 'while'. 'const'.
+
+TOKENS                      
+  '+'.  '-'.  '*'.  '/'. '%'. 
+  '('.  ')'.
+  '{'. '}'.
+  '['. ']'.
+  '!'. '<'. '>'.
+  ','. ';'. '='.
+  '<<'. '>>'. '+='. '-='. '*='. '/='. '%='. '<='. '>='. '||'. '&&'. '=='. '!='. '++'. '--'.
+
+TOKEN CLASSES           
+  number<<out int n>> = 
+    digit { digit }      LEX<<n = Convert.ToInt32(tokenStr);>>.
+
+  ident <<out string idStr>>  = 
+    letter { letter | digit } LEX<< idStr = tokenStr; >>
+  .
+
+  string <<out string str>> = '"' {noquote} '"' | "'" {noquote2} "'" LEX<< str = tokenStr;>>.
+
+NONTERMINALS
+  MiniCpp.
+  ConstDef.
+  Init.
+  VarDef.
+  FuncStuff.
+  FuncDecl.
+  FuncDef.
+  FuncHead.
+  FormParList.
+  Type.
+  Block.
+  Stat.
+  EmptyStat.
+  BlockStat.
+  ExprStat.
+  IfStat.
+  WhileStat.
+  BreakStat.
+  InputStat.
+  OutputStat.
+  DeleteStat.
+  ReturnStat.
+  Expr.
+  OrExpr.
+  AndExpr.
+  RelExpr.
+  SimpleExpr.
+  Term.
+  NotFact.
+  Fact.
+  ActParList.
+  VoidRule.
+  LL1Stuff.
+
+RULES
+  MiniCpp =  LOCAL<<string idStr = "";>>
+    { ConstDef 
+    | Type [ '*' ] ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> LL1Stuff 
+    | ';' 
+    } SEM<<Console.WriteLine("Nr of Statements: " + numStats); 
+           Console.WriteLine("Structural Complexity: " + structuralComplexity);
+           Console.WriteLine("Lines of code: " + MiniCppLex.curLine);
+           Console.WriteLine("n1: " + operators.Count + " N1: " + numOfOperators); 
+           Console.WriteLine("n2: " + operands.Count + " N2: " + numOfOperands);
+           int n = operators.Count + operands.Count;
+           int N = numOfOperators + numOfOperands;
+           double V = N * Math.Log(n, 2);
+           int D = (operators.Count * numOfOperands) / (2 * operands.Count);
+           Console.WriteLine("Vocabulary n: " + n);
+           Console.WriteLine("Length N: " + N);
+           Console.WriteLine("Volume V: " + V);
+           Console.WriteLine("Difficulty D: " + D);
+           Console.WriteLine("Effort E: " + (D*V));
+           >>.
+
+  ConstDef = LOCAL<<string idStr="";>> 
+    'const' Type ident<<out idStr>>SEM<<addOperand("ident"+ idStr);>> Init 
+      { ',' ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> Init 
+      } ';' .
+
+  Init = LOCAL<< string sign = ""; int n = 0; >> '=' SEM<<addOperator("=");>>
+   ( false SEM<<addOperand("false");>> | true SEM<<addOperand("true");>> | 'nullptr' SEM<<addOperand("nullptr");>>
+    | [ '+' | '-' SEM<<sign = "-";>> ] number<<out n>> SEM<<addOperand("num"+sign+n);>> ) .
+
+  VarDef = LOCAL<<string idStr="";>>  
+    [ Init ]
+    { ',' [ '*' ] ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> [ Init ] } ';' .
+
+  LL1Stuff = VarDef | FuncHead FuncStuff .
+
+  FuncStuff = ( FuncDecl | FuncDef ) .
+
+  FuncDecl = ';' .
+
+  FuncDef = Block .
+
+  FuncHead =  '(' [ FormParList ] ')' .
+
+  FormParList = LOCAL<<string idStr="";>> ( 'void' VoidRule
+    | ( int | bool ) [ '*' ] ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> [ '[' ']' ]
+    { ',' Type [ '*' ] ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> [ '[' ']' ] }
+    ) .
+
+  VoidRule = LOCAL<<string idStr="";>> ( EPS
+    | [ '*' ] ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> [ '[' ']' ] { ',' Type [ '*' ] ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> [ '[' ']' ] } ) .
+
+  Type = 'void' | 'bool' | 'int' .
+
+  Block = LOCAL<<string idStr="";>> '{' { ConstDef | Type [ '*' ] ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> VarDef | Stat } '}' .
+
+  Stat = ( EmptyStat | BlockStat | ExprStat
+    | IfStat SEM<<structuralComplexity++;>> | WhileStat SEM<<structuralComplexity++;>> | BreakStat
+    | InputStat | OutputStat
+    | DeleteStat | ReturnStat
+    ) SEM<< numStats++; >> .
+
+  EmptyStat = ';' .
+
+  BlockStat = Block .
+
+  ExprStat = Expr ';' .
+
+  IfStat = 'if' SEM<<addOperator("if");>> '(' Expr ')' Stat [ 'else' SEM<<addOperator("else");>> Stat ] .
+
+  WhileStat = 'while' SEM<<addOperator("while");>> '(' Expr ')' Stat .
+
+  BreakStat = 'break' SEM<<addOperator("break");>> ';' .
+
+  InputStat = LOCAL<<string idStr="";>> 'cin' SEM<<addOperator("cin");>> '>>' SEM<<addOperator("cinSy");>> ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> ';' .
+
+  OutputStat = LOCAL<<string str="";>> 'cout' SEM<<addOperator("cout"); >>
+   '<<' SEM<<addOperator("coutSy");>>
+    ( Expr | string<<out str>> SEM<<addOperand("str"+str);>> | 'endl' SEM<<addOperator("endl");>>)
+    { '<<'SEM<<addOperator("coutSy");>> ( Expr | string<<out str>> SEM<<addOperand("str"+str);>> | 'endl' SEM<<addOperator("endl");>> ) } ';' .
+
+  DeleteStat = LOCAL<<string idStr="";>> 'delete' SEM<<addOperator("delete");>> '[' ']' ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> ';' .
+
+  ReturnStat = 'return' SEM<<addOperator("return");>> [ Expr ] ';' .
+
+  Expr = OrExpr { ( '=' SEM<<operators.Add("="); numOfOperators++;>> 
+    | '+=' SEM<<operators.Add("+="); numOfOperators++;>> 
+    | '-=' SEM<<operators.Add("-="); numOfOperators++;>> 
+    | '*=' SEM<<operators.Add("*="); numOfOperators++;>> 
+    | '/=' SEM<<operators.Add("/="); numOfOperators++;>> 
+    | '%=' SEM<<operators.Add("%="); numOfOperators++;>>) 
+    OrExpr } .
+
+  OrExpr = AndExpr { '||' SEM<<addOperator("||");>> AndExpr } .
+
+  AndExpr = RelExpr { '&&' SEM<<addOperator("&&");>> RelExpr } .
+
+  RelExpr = SimpleExpr
+  { ( '==' SEM<<addOperator("==");>> | '!=' SEM<<addOperator("!=");>> | '<' SEM<<addOperator("smaller");>> | '<=' SEM<<addOperator("smallereq");>> | '>' SEM<<addOperator("greater");>> | '>=' SEM<<addOperator("greaterEq");>> ) SimpleExpr } .
+
+  SimpleExpr = LOCAL<<string sign = ""; int n = 0; bool isNum = false; >> [ '+' | '-' SEM<<sign = "-";>> ]
+    Term<<out isNum, out n>> SEM<<if(isNum) addOperand("num"+sign+n);>> { ( '+' SEM<<addOperator("+");>> | '-' SEM<<addOperator("-");>> ) Term<<out isNum, out n>> } .
+
+  Term<<out bool isNum, out int n>> = LOCAL<<isNum = false; n = 0;>> NotFact<<out isNum, out n>> { ( '*' SEM<<addOperator("*");>> | '/' SEM<<addOperator("/");>> | '%' SEM<<addOperator("%");>> ) NotFact<<out isNum, out n>> } .
+
+  NotFact<<out bool isNum, out int n>> = LOCAL<<isNum = false; n = 0;>> [ '!' SEM<<addOperator("!");>>] Fact<<out isNum, out n>> .
+
+  Fact<<out bool isNum, out int n>> = LOCAL<<string idStr=""; n = 0; isNum = false;>> ( 'false' SEM<<addOperand("false");>> | 'true' SEM<<addOperand("true");>> | 'nullptr' SEM<<addOperand("nullptr");>> | number<<out n>> SEM<<isNum = true;>>
+    | [ '++' SEM<<addOperator("++prefix");>> | '--' SEM<<addOperator("--prefix");>>]
+      ident<<out idStr>> SEM<<addOperand("ident"+ idStr);>> [ '[' Expr ']'
+      | '(' [ ActParList ] ')'
+      ]
+      [ '++' SEM<<addOperator("++postfix");>> | '--' SEM<<addOperator("--postfix");>>]
+    | 'new' SEM<<addOperator("new");>> Type '[' Expr ']'
+    | '(' Expr ')'
+    ) .
+
+  ActParList = Expr { ',' Expr } .
+
+END MiniCpp.
+

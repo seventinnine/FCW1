@@ -1,0 +1,31 @@
+// this code is not supposed to make sense
+
+int counter = -10;
+
+int f2(void) {
+  while (counter != -20) {
+    f1();
+    counter--;
+  }
+}
+
+const void bla = 100;
+
+/*
+const void bla2 = 100;
+*/
+
+bool f1(int i, void j) {
+  if (i % 420 == 69) { /* nice */
+    counter = f2() + j * (-10);
+  } else {
+    if(f1(i, j / 100)) {
+      counter = 0;
+    }
+  }
+  return j > 911;
+}
+
+void main() {
+  return f1(69, 21 / 5);
+} // main

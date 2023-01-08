@@ -6,203 +6,212 @@ Coco-2 PGT (source: MiniCpp.atg)
     2| 
     3|   SEM<<
     4| 
-    5|   
-    6|   private static int numStats = 0;  
-    7|   private static int cyclomaticComplexity = 1;
-    8|   private static System.Collections.Generic.Dictionary<string, string> callGraph = new System.Collections.Generic.Dictionary<string, string>();
-    9|   private static string currFunc = "";
-   10|   private static System.Collections.Generic.SortedSet<string> n1 = new System.Collections.Generic.SortedSet<string>();
-   11|   private static System.Collections.Generic.SortedSet<Tuple<string, string> > n2 = new System.Collections.Generic.SortedSet<Tuple<string, string> >();
-   12|   private static int N1 = 0;
-   13|   private static int N2 = 0;
+    5|   private static int numStats = 0;  
+    6|   private static int cyclomaticComplexity = 1;
+    7|   private static System.Collections.Generic.SortedSet<string> n1 = new System.Collections.Generic.SortedSet<string>();
+    8|   private static System.Collections.Generic.SortedSet<string> n2 = new System.Collections.Generic.SortedSet<string>();
+    9|   private static int N1 = 0;
+   10|   private static int N2 = 0;
+   11| 
+   12|   private static void PrintAnalysisResults() {
+   13|     System.Console.WriteLine("using .NET Framework " + System.Environment.Version);
    14| 
-   15|   private static void PrintAnalysisResults() {
-   16|     System.Console.WriteLine("b)");
-   17|     System.Console.WriteLine("  Lines of Code: " + MiniCppLex.curLine);
-   18|     System.Console.WriteLine("  Number of statements: " + numStats);
-   19|     System.Console.WriteLine("  Cyclomatic Complexity: " + cyclomaticComplexity);
-   20|     foreach (var item in callGraph) {
-   21|       System.Console.WriteLine("    " + item.Key + " -> " + item.Value);
-   22|     }
-   23|     foreach (var item in n2) {
-   24|       System.Console.WriteLine("    " + item.Item1 + " -> " + item.Item2);
-   25|     }
-   26|     int n = n1.Count + n2.Count;
-   27|     int N = N1 + N2;
-   28|     double V = (double)N * System.Math.Log(n, 2);
-   29|     double D = (double)(n1.Count * N2) / (double)(2 * n2.Count);
-   30|     double E = D * V;
-   31|     System.Console.WriteLine("c)");
-   32|     System.Console.WriteLine("  vocabulary: " + n);
-   33|     System.Console.WriteLine("  length: " + N);
-   34|     System.Console.WriteLine("  volume: " + V);
-   35|     System.Console.WriteLine("  difficulty: " + D);
-   36|     System.Console.WriteLine("  effort: " + E);
-   37|   }
-   38|   
-   39|   
-   40|   >>
+   15|     System.Console.WriteLine("b)");
+   16|     System.Console.WriteLine("  Lines of Code:         " + MiniCppLex.curLine);
+   17|     System.Console.WriteLine("  Number of statements:  " + numStats);
+   18|     System.Console.WriteLine("  Cyclomatic Complexity: " + cyclomaticComplexity);
+   19| 
+   20|     string n1AsString = // cannot do "using System.Linq" here :(
+   21|       System.Linq.Enumerable.Aggregate(n1, (l, r) => l.ToString() + ", " + r.ToString());
+   22|     string n2AsString = 
+   23|       System.Linq.Enumerable.Aggregate(n2, (l, r) => l.ToString() + ", " + r.ToString());
+   24|     int n = n1.Count + n2.Count;
+   25|     int N = N1 + N2;
+   26|     double V = (double)N * System.Math.Log(n, 2);
+   27|     double D = (double)(n1.Count * N2) / (double)(2 * n2.Count);
+   28|     double E = D * V;
+   29|     System.Console.WriteLine("c)");
+   30|     System.Console.WriteLine("  n1: " + n1AsString);
+   31|     System.Console.WriteLine("  n2: " + n2AsString);
+   32|     System.Console.WriteLine("  N1: " + N1);
+   33|     System.Console.WriteLine("  N2: " + N2);
+   34|     System.Console.WriteLine();
+   35|     System.Console.WriteLine("  vocabulary: " + n);
+   36|     System.Console.WriteLine("  length:     " + N);
+   37|     System.Console.WriteLine("  volume:     " + V.ToString("N2"));
+   38|     System.Console.WriteLine("  difficulty: " + D.ToString("N2"));
+   39|     System.Console.WriteLine("  effort:     " + E.ToString("N2"));
+   40|   }
    41| 
-   42| CHARACTER SETS
-   43|   digit      = '0' .. '9'.
-   44|   whiteSpace = CHR(9) + EOL IGNORE. /*' ' ignored by default*/
-   45|   letter     = 'a' .. 'z' + 'A' .. 'Z' + '_'.
-   46|   anyButDoubleQuote = ANY - '"'.
-   47| 
-   48| COMMENTS
-   49|   FROM '/*' TO '*/' .
-   50|   FROM '//' TO EOL .
-   51| 
-   52| KEYWORDS
-   53|   'const'. 'false'. 'true'. 'nullptr'. 'bool'. 'if'. 'else'. 'while'. 'break'. 'cin'. 'cout'. 'endl'. 'delete'. 'return'. 'new'. 'void'. 'int'.
-   54| 
-   55| TOKENS                      
-   56|   '+'.  '-'.  '*'.  '/'.  '('.  ')'. '%'. '<'. '>'. '!'.
-   57|   '{'. '}'.
-   58|   ','. ';'. '='. 
-   59|   '>='. '<='. '>>'. '<<'. '+='. '-='. '*='. '/='. '%='. '=='. '!='. '++'. '--'. '||'. '&&'. '['. ']'.
-   60| 
-   61| TOKEN CLASSES           
-   62|   number<<out int n>> = 
-   63|     digit { digit }           LEX<<n = Convert.ToInt32(tokenStr);>>
-   64|   .
-   65| 
-   66|   ident<<out string idStr>> =
-   67|     letter { letter | digit } LEX<<idStr = tokenStr;>>
-   68|   .
-   69| 
-   70|   string<<out string str>> =
-   71|     '"' { anyButDoubleQuote } '"' LEX<<str = tokenStr;>>
-   72|   .
-   73| 
-   74| NONTERMINALS
-   75|   MiniCpp.
-   76|   ConstDef.
-   77|   Init.
-   78|   VarDef.
-   79|   FormParList.
-   80|   Type.
-   81|   Block.
-   82|   Stat.
-   83|   EmptyStat.
-   84|   BlockStat.
-   85|   ExprStat.
-   86|   IfStat.
-   87|   WhileStat.
-   88|   BreakStat.
-   89|   InputStat.
-   90|   OutputStat.
-   91|   DeleteStat.
-   92|   ReturnStat.
-   93|   Expr.
-   94|   OrExpr.
-   95|   AndExpr.
-   96|   RelExpr.
-   97|   SimpleExpr.
-   98|   Term.
-   99|   NotFact.
-  100|   Fact.
-  101|   ActParList.
-  102|   FormParTypeRight.
-  103|   FormPar.
-  104|   MutDef.
-  105| 
-  106| RULES
-  107| 
-  108|   MiniCpp = { ConstDef | MutDef | ';' } SEM<<PrintAnalysisResults();>>
-  109|     .
-  110|   ConstDef =                          LOCAL<<string idStr1 = ""; string idStrN = "";>>
-  111|      'const' Type ident<<out idStr1>> SEM<<n2.Add(Tuple.Create(currFunc, idStr1)); N2++;>> Init { ',' ident<<out idStrN>> SEM<<n2.Add(Tuple.Create(currFunc, idStrN)); N2++;>> Init } ';' .
-  112|   Init =                              LOCAL<<int n = 0;>>
-  113|     '=' ( false | true | 'nullptr'
-  114|     | [ '+' | '-' SEM<<n1.Add("-"); N1++;>> ] number<<out n>> ) .
-  115|   
-  116|   
-  117|   // VarDef | FuncHead
-  118|   MutDef =                   LOCAL<<string idStr = "";>>
-  119|       Type [ '*' ] ident<<out idStr>> ( [ Init ] SEM<<n2.Add(Tuple.Create(currFunc, idStr)); N2++;>> |
-  120|        '(' [ FormParList ] ')' SEM<<currFunc = idStr;>> ) [ Block ] SEM<<currFunc = ""; //reset curr func name>>
-  121|     .
-  122| 
-  123|   VarDef =                    LOCAL<<string idStr1 = ""; string idStrN = "";>>
-  124|     Type [ '*' ] ident<<out idStr1>> [ Init ] SEM<<n2.Add(Tuple.Create(currFunc, idStr1)); N2++;>>
-  125|     { ',' [ '*' ] ident<<out idStrN>> [ Init ] SEM<<n2.Add(Tuple.Create(currFunc, idStrN)); N2++;>> } ';' 
-  126|     .
-  127|   
-  128|   FormParList =               
-  129|     FormPar { ',' FormPar }  
-  130|     .
-  131| 
-  132|   FormPar = 
-  133|     ( 'void' [ FormParTypeRight ]
-  134|     | ('int' | 'bool' ) FormParTypeRight
-  135|     )
-  136|     .
-  137|   FormParTypeRight =                       LOCAL<<string idStr = "";>>
-  138|    [ '*' ] ident<<out idStr>> [ '[' ']' ]
-  139|    .
-  140| 
-  141|   Type = 'void' | 'bool' | 'int' .
-  142|   Block = '{' { ConstDef | VarDef | Stat } '}' .
-  143|   Stat = ( EmptyStat | BlockStat | ExprStat
-  144|     | IfStat | WhileStat | BreakStat
-  145|     | InputStat | OutputStat
-  146|     | DeleteStat | ReturnStat
-  147|     ) SEM<<numStats++;>>.
-  148|   EmptyStat = ';' .
-  149|   BlockStat = Block .
-  150|   ExprStat = Expr ';' .
-  151|   IfStat = 'if' SEM<<cyclomaticComplexity++; n1.Add("if"); N1++;>> '(' Expr ')' Stat [ 'else' SEM<<n1.Add("else"); N1++;>> Stat ] .
-!WRN!                                                                                         ^LL(1) error (start AND succ): else
-  152|   WhileStat = 'while' SEM<<cyclomaticComplexity++; n1.Add("while"); N1++;>> '(' Expr ')' Stat .
-  153|   BreakStat = 'break' SEM<<n1.Add("break"); N1++;>> ';' .
-  154|   InputStat =                             LOCAL<<string idStr = "";>>
-  155|     'cin' '>>' ident<<out idStr>> ';' .
-  156|   OutputStat =                          LOCAL<<string str = "";>>
-  157|     'cout' '<<' ( Expr | string<<out str>> | 'endl' )
-  158|     { '<<' ( Expr | string<<out str>> | 'endl' ) } ';' .
-  159|   DeleteStat =                    LOCAL<<string idStr = "";>>
-  160|     'delete' '[' ']' ident<<out idStr>> ';' .
-  161|   ReturnStat = 'return' [ Expr ] ';' .
-  162|   Expr = 
-  163|     OrExpr { 
-  164|       ( '=' SEM<<n1.Add("="); N1++;>> 
-  165|       | '+=' SEM<<n1.Add("+="); N1++;>> 
-  166|       | '-=' SEM<<n1.Add("-="); N1++;>> 
-  167|       | '*=' SEM<<n1.Add("*="); N1++;>>
-  168|       | '/=' SEM<<n1.Add("/="); N1++;>>
-  169|       | '%=' SEM<<n1.Add("%="); N1++;>> ) OrExpr } .
-  170|   OrExpr = AndExpr { '||' SEM<<n1.Add("||"); N1++;>> AndExpr } .
-  171|   AndExpr = RelExpr { '&&' SEM<<n1.Add("&&"); N1++;>> RelExpr } .
-  172|   RelExpr = SimpleExpr {
-  173|     ( '==' SEM<<n1.Add("=="); N1++;>> 
-  174|     | '!=' SEM<<n1.Add("!="); N1++;>> 
-  175|     | '<' SEM<<n1.Add("<"); N1++;>>
-  176|     | '<=' SEM<<n1.Add("<="); N1++;>>
-  177|     | '>' SEM<<n1.Add(">"); N1++;>>
-  178|     | '>=' SEM<<n1.Add(">="); N1++;>> ) SimpleExpr } .
-  179|   SimpleExpr = [ '+' SEM<<n1.Add("+"); N1++;>> | '-' SEM<<n1.Add("-"); N1++;>> ]
-  180|     Term { ( '+' SEM<<n1.Add("+"); N1++;>> | '-' SEM<<n1.Add("-"); N1++;>> ) Term } .
-  181|   Term = 
-  182|     NotFact { 
-  183|       ( '*' SEM<<n1.Add("*"); N1++;>>
-  184|       | '/' SEM<<n1.Add("/"); N1++;>> 
-  185|       | '%' SEM<<n1.Add("%"); N1++;>> ) NotFact } .
-  186|   NotFact = [ '!' SEM<<n1.Add("!"); N1++;>> ] Fact .
-  187|   Fact =                              LOCAL<<int n = 0; string idStr = "";>>
-  188|     ( 'false' | 'true' | 'nullptr' | number<<out n>>
-  189|     | [ '++' SEM<<n1.Add("++"); N1++;>> | '--' SEM<<n1.Add("--"); N1++;>> ]
-  190|       ident<<out idStr>> [ ( '[' Expr ']' )
-  191|         | ( '(' [ ActParList ] ')' SEM<<callGraph.Add(currFunc, idStr); n2.Add(Tuple.Create(currFunc, idStr)); N2++;>> )
-  192|         ]
-  193|       [ '++' SEM<<n1.Add("++"); N1++;>> | '--' SEM<<n1.Add("--"); N1++;>> ]
-  194|     | 'new' Type '[' Expr ']'
-  195|     | '(' Expr ')'
-  196|     ) .
-  197|   ActParList = Expr { ',' Expr } .
-  198| 
-  199| END MiniCpp.
-  200| 
+   42|   private static void AddToN1(string item) {
+   43|     n1.Add(item); N1++;
+   44|   }
+   45| 
+   46|   private static void AddToN2(string item) {
+   47|     n2.Add(item); N2++;
+   48|   }
+   49|   
+   50|   // if user selects "[c]ontinue", we have to reset all of our collected data
+   51|   private static void Reset() {
+   52|     numStats = 0;
+   53|     cyclomaticComplexity = 1;
+   54|     n1.Clear();
+   55|     n2.Clear();
+   56|     N1 = 0;
+   57|     N2 = 0;
+   58|   }
+   59| 
+   60|   >>
+   61| 
+   62| CHARACTER SETS
+   63|   digit      = '0' .. '9'.
+   64|   whiteSpace = CHR(9) + EOL IGNORE. /*' ' ignored by default*/
+   65|   letter     = 'a' .. 'z' + 'A' .. 'Z' + '_'.
+   66|   anyButDoubleQuote = ANY - '"'.
+   67| 
+   68| COMMENTS
+   69|   FROM '/*' TO '*/' .
+   70|   FROM '//' TO EOL .
+   71| 
+   72| KEYWORDS
+   73|   'const'. 'false'. 'true'. 'nullptr'. 'bool'. 'if'. 'else'. 'while'. 'break'. 'cin'. 'cout'. 'endl'. 'delete'. 'return'. 'new'. 'void'. 'int'.
+   74| 
+   75| TOKENS                      
+   76|   '+'.  '-'.  '*'.  '/'.  '('.  ')'. '%'. '<'. '>'. '!'.
+   77|   '{'. '}'.
+   78|   ','. ';'. '='. 
+   79|   '>='. '<='. '>>'. '<<'. '+='. '-='. '*='. '/='. '%='. '=='. '!='. '++'. '--'. '||'. '&&'. '['. ']'.
+   80| 
+   81| TOKEN CLASSES           
+   82|   number<<out int n>> = 
+   83|     digit { digit }           LEX<<n = Convert.ToInt32(tokenStr);>>
+   84|   .
+   85| 
+   86|   ident<<out string idStr>> =
+   87|     letter { letter | digit } LEX<<idStr = tokenStr;>>
+   88|   .
+   89| 
+   90|   string<<out string str>> =
+   91|     '"' { anyButDoubleQuote } '"' LEX<<str = tokenStr;>>
+   92|   .
+   93| 
+   94| NONTERMINALS
+   95|   MiniCpp.
+   96|   ConstDef.
+   97|   Init.
+   98|   VarDef.
+   99|   FormParList.
+  100|   Type.
+  101|   Block.
+  102|   Stat.
+  103|   EmptyStat.
+  104|   BlockStat.
+  105|   ExprStat.
+  106|   IfStat.
+  107|   WhileStat.
+  108|   BreakStat.
+  109|   InputStat.
+  110|   OutputStat.
+  111|   DeleteStat.
+  112|   ReturnStat.
+  113|   Expr.
+  114|   OrExpr.
+  115|   AndExpr.
+  116|   RelExpr.
+  117|   SimpleExpr.
+  118|   Term.
+  119|   NotFact.
+  120|   Fact.
+  121|   ActParList.
+  122|   FormParTypeRight.
+  123|   MutDef.
+  124| 
+  125| RULES
+  126| 
+  127|   MiniCpp = SEM<<Reset();>> { ConstDef | MutDef | ';' } SEM<<PrintAnalysisResults();>>
+  128|     .
+  129|   ConstDef =                          LOCAL<<string idStr1 = ""; string idStrN = "";>>
+  130|      'const' Type ident<<out idStr1>> SEM<<AddToN2(idStr1);>> Init { ',' ident<<out idStrN>> SEM<<AddToN2(idStrN);>> Init } ';' .
+  131|   Init =                              LOCAL<<int n = 0;>>
+  132|     '=' ( false | true | 'nullptr'
+  133|     | [ '+' | '-' ] number<<out n>> SEM<<AddToN2(n.ToString());>> ) .
+  134|   // VarDef | FuncHead => not ConstDef, so its [Mut]able
+  135|   MutDef =                   LOCAL<<string idStr = "";>>
+  136|       Type [ '*' ] ident<<out idStr>> ( [ Init ] SEM<<AddToN2(idStr);>> |
+  137|        '(' [ FormParList ] ')' SEM<<AddToN1("()");>> ) [ Block ]
+  138|     .
+  139|   VarDef =                    LOCAL<<string idStr1 = ""; string idStrN = "";>>
+  140|     Type [ '*' ] ident<<out idStr1>> [ Init ] SEM<<AddToN2(idStr1);>>
+  141|     { ',' [ '*' ] ident<<out idStrN>> [ Init ] SEM<<AddToN2(idStrN);>> } ';' 
+  142|     .
+  143|   FormParList =              
+  144|     ( 'void' [ FormParTypeRight { ',' Type FormParTypeRight } ]
+  145|     | ('int' | 'bool' ) FormParTypeRight { ',' Type FormParTypeRight } )
+  146|     .
+  147|   FormParTypeRight =                       LOCAL<<string idStr = "";>> 
+  148|     [ '*' ] ident<<out idStr>> [ '[' ']' ]
+  149|     .
+  150|   Type = 'void' | 'bool' | 'int' .
+  151|   Block = '{' { ConstDef | VarDef | Stat } '}' SEM<<AddToN1("{}");>> .
+  152|   Stat = ( EmptyStat | BlockStat | ExprStat
+  153|     | IfStat | WhileStat | BreakStat
+  154|     | InputStat | OutputStat
+  155|     | DeleteStat | ReturnStat
+  156|     ) SEM<<numStats++;>>.
+  157|   EmptyStat = ';' .
+  158|   BlockStat = Block .
+  159|   ExprStat = Expr ';' .
+  160|   IfStat = 'if' SEM<<cyclomaticComplexity++; AddToN1("if");>> '(' Expr ')' Stat [ 'else' SEM<<AddToN1("else");>> Stat ] .
+!WRN!                                                                                    ^LL(1) error (start AND succ): else
+  161|   WhileStat = 'while' SEM<<cyclomaticComplexity++; AddToN1("while");>> '(' Expr ')' Stat .
+  162|   BreakStat = 'break' SEM<<AddToN1("break");>> ';' .
+  163|   InputStat =                             LOCAL<<string idStr = "";>>
+  164|     'cin' SEM<<AddToN1("cin");>> '>>' ident<<out idStr>> ';' .
+  165|   OutputStat =                          LOCAL<<string str = "";>>
+  166|     'cout' SEM<<AddToN1("cout");>> '<<' ( Expr | string<<out str>> SEM<<AddToN2(str);>>  | 'endl' )
+  167|     { '<<' ( Expr | string<<out str>> SEM<<AddToN2(str);>> | 'endl' ) } ';' .
+  168|   DeleteStat =                    LOCAL<<string idStr = "";>>
+  169|     'delete' '[' ']' ident<<out idStr>> ';' .
+  170|   ReturnStat = 'return' [ Expr ] ';' .
+  171|   Expr = 
+  172|     OrExpr { 
+  173|       ( '=' SEM<<AddToN1("=");>> 
+  174|       | '+=' SEM<<AddToN1("+=");>> 
+  175|       | '-=' SEM<<AddToN1("-=");>> 
+  176|       | '*=' SEM<<AddToN1("*=");>>
+  177|       | '/=' SEM<<AddToN1("/=");>>
+  178|       | '%=' SEM<<AddToN1("%=");>> ) OrExpr } .
+  179|   OrExpr = AndExpr { '||' SEM<<AddToN1("||");>> AndExpr } .
+  180|   AndExpr = RelExpr { '&&' SEM<<AddToN1("&&");>> RelExpr } .
+  181|   RelExpr = SimpleExpr {
+  182|     ( '==' SEM<<AddToN1("==");>> 
+  183|     | '!=' SEM<<AddToN1("!=");>> 
+  184|     | '<' SEM<<AddToN1("<");>>
+  185|     | '<=' SEM<<AddToN1("<=");>>
+  186|     | '>' SEM<<AddToN1(">");>>
+  187|     | '>=' SEM<<AddToN1(">=");>> ) SimpleExpr } .
+  188|   SimpleExpr = [ '+' SEM<<AddToN1("+");>> | '-' SEM<<AddToN1("-");>> ]
+  189|     Term { ( '+' SEM<<AddToN1("+");>> | '-' SEM<<AddToN1("-");>> ) Term } .
+  190|   Term = 
+  191|     NotFact { 
+  192|       ( '*' SEM<<AddToN1("*");>>
+  193|       | '/' SEM<<AddToN1("/");>> 
+  194|       | '%' SEM<<AddToN1("%");>> ) NotFact } .
+  195|   NotFact = [ '!' SEM<<AddToN1("!");>> ] Fact .
+  196|   Fact =                              LOCAL<<int n = 0; string idStr = "";>>
+  197|     ( 'false' | 'true' | 'nullptr' | number<<out n>> SEM<<AddToN1(n.ToString());>> 
+  198|     | [ '++' SEM<<AddToN1("++");>> | '--' SEM<<AddToN1("--");>> ]
+  199|       ident<<out idStr>> [ ( '[' Expr ']' )
+  200|         | ( '(' [ ActParList ] ')' SEM<<AddToN2(idStr);>> )
+  201|         ]
+  202|       [ '++' SEM<<AddToN1("++");>> | '--' SEM<<AddToN1("--");>> ]
+  203|     | 'new' Type '[' Expr ']'
+  204|     | '(' Expr ')'
+  205|     ) .
+  206|   ActParList = Expr { ',' Expr } .
+  207| 
+  208| END MiniCpp.
+  209| 
 
 
 error(s) and warning(s):
@@ -218,13 +227,13 @@ statistics:
 ----------
 
    52 terminals
-   30 nonterminals
+   29 nonterminals
   126 alternatives
-  208 nodes in top-down graph
+  211 nodes in top-down graph
    15 eps sets (with look ahead)
     1 any sets
 
-  851 bytes G-code
+  872 bytes G-code
 
 deletable nonterminal(s):
 ------------------------
@@ -237,507 +246,517 @@ G-code:
 ======
 
 -----  MiniCpp  ----------------------------
-    1  NTA    ConstDef                9    9
-    6  JMP        1
+    1  SEM        1
+    2  NTA    ConstDef               10   10
+    7  JMP        2
 
-    9  NTA    MutDef                 17   17
-   14  JMP        1
+   10  NTA    MutDef                 18   18
+   15  JMP        2
 
-   17  TA     ';'                    24
-   21  JMP        1
+   18  TA     ';'                    25
+   22  JMP        2
 
-   24  EPS        1
-   26  SEM        3
-   27  RET
+   25  EPS        1
+   27  SEM        4
+   28  RET
 
 -----  ConstDef  ---------------------------
-   28  T      const
-   30  NT     Type                    1
-   33  TC     ident                   2
-   36  SEM        3
-   37  NT     Init                    4
-   40  TA     ','                    54
-   44  TC     ident                   5
-   47  SEM        6
-   48  NT     Init                    7
-   51  JMP       40
+   29  T      const
+   31  NT     Type                    1
+   34  TC     ident                   2
+   37  SEM        3
+   38  NT     Init                    4
+   41  TA     ','                    55
+   45  TC     ident                   5
+   48  SEM        6
+   49  NT     Init                    7
+   52  JMP       41
 
-   54  T      ';'
-   56  RET
+   55  T      ';'
+   57  RET
 
 -----  Init  -------------------------------
-   57  T      '='
-   59  TA     false                  64
-   63  RET
+   58  T      '='
+   60  TA     false                  65
+   64  RET
 
-   64  TA     true                   69
-   68  RET
+   65  TA     true                   70
+   69  RET
 
-   69  TA     nullptr                74
-   73  RET
+   70  TA     nullptr                75
+   74  RET
 
-   74  TA     '+'                    82
-   78  TC     number                  2
-   81  RET
+   75  TA     '+'                    84
+   79  TC     number                  1
+   82  SEM        2
+   83  RET
 
-   82  TA     '-'                    78
-   86  SEM        1
-   87  JMP       78
+   84  TA     '-'                    79
+   88  JMP       79
 
 -----  VarDef  -----------------------------
-   90  NT     Type                    1
-   93  TA     '*'                    97
-   97  TC     ident                   2
-  100  NTA    Init                  105  105
-  105  EPS        2
-  107  SEM        4
-  108  TA     ','                   130
-  112  TA     '*'                   116
-  116  TC     ident                   5
-  119  NTA    Init                  124  124
-  124  EPS        2
-  126  SEM        7
-  127  JMP      108
+   91  NT     Type                    1
+   94  TA     '*'                    98
+   98  TC     ident                   2
+  101  NTA    Init                  106  106
+  106  EPS        2
+  108  SEM        4
+  109  TA     ','                   131
+  113  TA     '*'                   117
+  117  TC     ident                   5
+  120  NTA    Init                  125  125
+  125  EPS        2
+  127  SEM        7
+  128  JMP      109
 
-  130  T      ';'
-  132  RET
+  131  T      ';'
+  133  RET
 
 -----  FormParList  ------------------------
-  133  NT     FormPar                 1
-  136  TA     ','                   146
-  140  NT     FormPar                 2
-  143  JMP      136
+  134  TA     void                  162
+  138  NTA    FormParTypeRight      159  159
+  143  TA     ','                   156
+  147  NT     Type                    2
+  150  NT     FormParTypeRight        3
+  153  JMP      143
 
-  146  EPS        3
-  148  RET
-
------  Type  -------------------------------
-  149  TA     void                  154
-  153  RET
-
-  154  TA     bool                  159
+  156  EPS        3
   158  RET
 
-  159  T      int
+  159  EPS        3
   161  RET
 
+  162  TA     int                   185
+  166  NT     FormParTypeRight        4
+  169  TA     ','                   182
+  173  NT     Type                    5
+  176  NT     FormParTypeRight        6
+  179  JMP      169
+
+  182  EPS        3
+  184  RET
+
+  185  T      bool
+  187  JMP      166
+
+-----  Type  -------------------------------
+  190  TA     void                  195
+  194  RET
+
+  195  TA     bool                  200
+  199  RET
+
+  200  T      int
+  202  RET
+
 -----  Block  ------------------------------
-  162  T      '{'
-  164  NTA    ConstDef              172  172
-  169  JMP      164
+  203  T      '{'
+  205  NTA    ConstDef              213  213
+  210  JMP      205
 
-  172  NTA    VarDef                180  180
-  177  JMP      164
+  213  NTA    VarDef                221  221
+  218  JMP      205
 
-  180  NTA    Stat                  188  188
-  185  JMP      164
+  221  NTA    Stat                  229  229
+  226  JMP      205
 
-  188  T      '}'
-  190  RET
+  229  T      '}'
+  231  SEM        4
+  232  RET
 
 -----  Stat  -------------------------------
-  191  NTA    EmptyStat             198  198
-  196  SEM       11
-  197  RET
+  233  NTA    EmptyStat             240  240
+  238  SEM       11
+  239  RET
 
-  198  NTA    BlockStat             206  206
-  203  JMP      196
+  240  NTA    BlockStat             248  248
+  245  JMP      238
 
-  206  NTA    ExprStat              214  214
-  211  JMP      196
+  248  NTA    ExprStat              256  256
+  253  JMP      238
 
-  214  NTA    IfStat                222  222
-  219  JMP      196
+  256  NTA    IfStat                264  264
+  261  JMP      238
 
-  222  NTA    WhileStat             230  230
-  227  JMP      196
+  264  NTA    WhileStat             272  272
+  269  JMP      238
 
-  230  NTA    BreakStat             238  238
-  235  JMP      196
+  272  NTA    BreakStat             280  280
+  277  JMP      238
 
-  238  NTA    InputStat             246  246
-  243  JMP      196
+  280  NTA    InputStat             288  288
+  285  JMP      238
 
-  246  NTA    OutputStat            254  254
-  251  JMP      196
+  288  NTA    OutputStat            296  296
+  293  JMP      238
 
-  254  NTA    DeleteStat            262  262
-  259  JMP      196
+  296  NTA    DeleteStat            304  304
+  301  JMP      238
 
-  262  NT     ReturnStat             10
-  265  JMP      196
+  304  NT     ReturnStat             10
+  307  JMP      238
 
 -----  EmptyStat  --------------------------
-  268  T      ';'
-  270  RET
+  310  T      ';'
+  312  RET
 
 -----  BlockStat  --------------------------
-  271  NT     Block                   1
-  274  RET
+  313  NT     Block                   1
+  316  RET
 
 -----  ExprStat  ---------------------------
-  275  NT     Expr                    1
-  278  T      ';'
-  280  RET
+  317  NT     Expr                    1
+  320  T      ';'
+  322  RET
 
 -----  IfStat  -----------------------------
-  281  T      if
-  283  SEM        1
-  284  T      '('
-  286  NT     Expr                    2
-  289  T      ')'
-  291  NT     Stat                    3
-  294  TA     else                  303
-  298  SEM        4
-  299  NT     Stat                    5
-  302  RET
+  323  T      if
+  325  SEM        1
+  326  T      '('
+  328  NT     Expr                    2
+  331  T      ')'
+  333  NT     Stat                    3
+  336  TA     else                  345
+  340  SEM        4
+  341  NT     Stat                    5
+  344  RET
 
-  303  EPS        4
-  305  RET
+  345  EPS        4
+  347  RET
 
 -----  WhileStat  --------------------------
-  306  T      while
-  308  SEM        1
-  309  T      '('
-  311  NT     Expr                    2
-  314  T      ')'
-  316  NT     Stat                    3
-  319  RET
+  348  T      while
+  350  SEM        1
+  351  T      '('
+  353  NT     Expr                    2
+  356  T      ')'
+  358  NT     Stat                    3
+  361  RET
 
 -----  BreakStat  --------------------------
-  320  T      break
-  322  SEM        1
-  323  T      ';'
-  325  RET
+  362  T      break
+  364  SEM        1
+  365  T      ';'
+  367  RET
 
 -----  InputStat  --------------------------
-  326  T      cin
-  328  T      '>>'
-  330  TC     ident                   1
-  333  T      ';'
-  335  RET
+  368  T      cin
+  370  SEM        1
+  371  T      '>>'
+  373  TC     ident                   2
+  376  T      ';'
+  378  RET
 
 -----  OutputStat  -------------------------
-  336  T      cout
-  338  T      '<<'
-  340  NTA    Expr                  373  373
-  345  TA     '<<'                  370
-  349  NTA    Expr                  357  357
-  354  JMP      345
+  379  T      cout
+  381  SEM        1
+  382  T      '<<'
+  384  NTA    Expr                  418  418
+  389  TA     '<<'                  415
+  393  NTA    Expr                  401  401
+  398  JMP      389
 
-  357  TCA    string                365  365
-  362  JMP      345
+  401  TCA    string                410  410
+  406  SEM        7
+  407  JMP      389
 
-  365  T      endl
-  367  JMP      345
+  410  T      endl
+  412  JMP      389
 
-  370  T      ';'
-  372  RET
+  415  T      ';'
+  417  RET
 
-  373  TCA    string                381  381
-  378  JMP      345
+  418  TCA    string                427  427
+  423  SEM        4
+  424  JMP      389
 
-  381  T      endl
-  383  JMP      345
+  427  T      endl
+  429  JMP      389
 
 -----  DeleteStat  -------------------------
-  386  T      delete
-  388  T      '['
-  390  T      ']'
-  392  TC     ident                   1
-  395  T      ';'
-  397  RET
+  432  T      delete
+  434  T      '['
+  436  T      ']'
+  438  TC     ident                   1
+  441  T      ';'
+  443  RET
 
 -----  ReturnStat  -------------------------
-  398  T      return
-  400  NTA    Expr                  405  405
-  405  T      ';'
-  407  RET
+  444  T      return
+  446  NTA    Expr                  451  451
+  451  T      ';'
+  453  RET
 
 -----  Expr  -------------------------------
-  408  NT     OrExpr                  1
-  411  TA     '='                   422
-  415  SEM        2
-  416  NT     OrExpr                  8
-  419  JMP      411
+  454  NT     OrExpr                  1
+  457  TA     '='                   468
+  461  SEM        2
+  462  NT     OrExpr                  8
+  465  JMP      457
 
-  422  TA     '+='                  430
-  426  SEM        3
-  427  JMP      416
+  468  TA     '+='                  476
+  472  SEM        3
+  473  JMP      462
 
-  430  TA     '-='                  438
-  434  SEM        4
-  435  JMP      416
+  476  TA     '-='                  484
+  480  SEM        4
+  481  JMP      462
 
-  438  TA     '*='                  446
-  442  SEM        5
-  443  JMP      416
+  484  TA     '*='                  492
+  488  SEM        5
+  489  JMP      462
 
-  446  TA     '/='                  454
-  450  SEM        6
-  451  JMP      416
+  492  TA     '/='                  500
+  496  SEM        6
+  497  JMP      462
 
-  454  TA     '%='                  462
-  458  SEM        7
-  459  JMP      416
+  500  TA     '%='                  508
+  504  SEM        7
+  505  JMP      462
 
-  462  EPS        5
-  464  RET
+  508  EPS        5
+  510  RET
 
 -----  OrExpr  -----------------------------
-  465  NT     AndExpr                 1
-  468  TA     '||'                  479
-  472  SEM        2
-  473  NT     AndExpr                 3
-  476  JMP      468
+  511  NT     AndExpr                 1
+  514  TA     '||'                  525
+  518  SEM        2
+  519  NT     AndExpr                 3
+  522  JMP      514
 
-  479  EPS        6
-  481  RET
+  525  EPS        6
+  527  RET
 
 -----  AndExpr  ----------------------------
-  482  NT     RelExpr                 1
-  485  TA     '&&'                  496
-  489  SEM        2
-  490  NT     RelExpr                 3
-  493  JMP      485
+  528  NT     RelExpr                 1
+  531  TA     '&&'                  542
+  535  SEM        2
+  536  NT     RelExpr                 3
+  539  JMP      531
 
-  496  EPS        7
-  498  RET
+  542  EPS        7
+  544  RET
 
 -----  RelExpr  ----------------------------
-  499  NT     SimpleExpr              1
-  502  TA     '=='                  513
-  506  SEM        2
-  507  NT     SimpleExpr              8
-  510  JMP      502
+  545  NT     SimpleExpr              1
+  548  TA     '=='                  559
+  552  SEM        2
+  553  NT     SimpleExpr              8
+  556  JMP      548
 
-  513  TA     '!='                  521
-  517  SEM        3
-  518  JMP      507
+  559  TA     '!='                  567
+  563  SEM        3
+  564  JMP      553
 
-  521  TA     '<'                   529
-  525  SEM        4
-  526  JMP      507
+  567  TA     '<'                   575
+  571  SEM        4
+  572  JMP      553
 
-  529  TA     '<='                  537
-  533  SEM        5
-  534  JMP      507
+  575  TA     '<='                  583
+  579  SEM        5
+  580  JMP      553
 
-  537  TA     '>'                   545
-  541  SEM        6
-  542  JMP      507
+  583  TA     '>'                   591
+  587  SEM        6
+  588  JMP      553
 
-  545  TA     '>='                  553
-  549  SEM        7
-  550  JMP      507
+  591  TA     '>='                  599
+  595  SEM        7
+  596  JMP      553
 
-  553  EPS        8
-  555  RET
+  599  EPS        8
+  601  RET
 
 -----  SimpleExpr  -------------------------
-  556  TA     '+'                   586
-  560  SEM        1
-  561  NT     Term                    3
-  564  TA     '+'                   575
-  568  SEM        4
-  569  NT     Term                    6
-  572  JMP      564
+  602  TA     '+'                   632
+  606  SEM        1
+  607  NT     Term                    3
+  610  TA     '+'                   621
+  614  SEM        4
+  615  NT     Term                    6
+  618  JMP      610
 
-  575  TA     '-'                   583
-  579  SEM        5
-  580  JMP      569
+  621  TA     '-'                   629
+  625  SEM        5
+  626  JMP      615
 
-  583  EPS        9
-  585  RET
+  629  EPS        9
+  631  RET
 
-  586  TA     '-'                   561
-  590  SEM        2
-  591  JMP      561
+  632  TA     '-'                   607
+  636  SEM        2
+  637  JMP      607
 
 -----  Term  -------------------------------
-  594  NT     NotFact                 1
-  597  TA     '*'                   608
-  601  SEM        2
-  602  NT     NotFact                 5
-  605  JMP      597
+  640  NT     NotFact                 1
+  643  TA     '*'                   654
+  647  SEM        2
+  648  NT     NotFact                 5
+  651  JMP      643
 
-  608  TA     '/'                   616
-  612  SEM        3
-  613  JMP      602
+  654  TA     '/'                   662
+  658  SEM        3
+  659  JMP      648
 
-  616  TA     '%'                   624
-  620  SEM        4
-  621  JMP      602
+  662  TA     '%'                   670
+  666  SEM        4
+  667  JMP      648
 
-  624  EPS       10
-  626  RET
+  670  EPS       10
+  672  RET
 
 -----  NotFact  ----------------------------
-  627  TA     '!'                   632
-  631  SEM        1
-  632  NT     Fact                    2
-  635  RET
+  673  TA     '!'                   678
+  677  SEM        1
+  678  NT     Fact                    2
+  681  RET
 
 -----  Fact  -------------------------------
-  636  TA     false                 641
-  640  RET
+  682  TA     false                 687
+  686  RET
 
-  641  TA     true                  646
-  645  RET
+  687  TA     true                  692
+  691  RET
 
-  646  TA     nullptr               651
-  650  RET
+  692  TA     nullptr               697
+  696  RET
 
-  651  TCA    number                657  657
-  656  RET
+  697  TCA    number                704  704
+  702  SEM        2
+  703  RET
 
-  657  TA     '++'                  704
-  661  SEM        2
-  662  TC     ident                   4
-  665  TA     '['                   689
-  669  NT     Expr                    5
-  672  T      ']'
-  674  TA     '++'                  680
-  678  SEM        8
-  679  RET
-
-  680  TA     '--'                  686
-  684  SEM        9
-  685  RET
-
-  686  EPS       12
-  688  RET
-
-  689  TA     '('                   674
-  693  NTA    ActParList            698  698
-  698  T      ')'
-  700  SEM        7
-  701  JMP      674
-
-  704  TA     '--'                  712
+  704  TA     '++'                  751
   708  SEM        3
-  709  JMP      662
+  709  TC     ident                   5
+  712  TA     '['                   736
+  716  NT     Expr                    6
+  719  T      ']'
+  721  TA     '++'                  727
+  725  SEM        9
+  726  RET
 
-  712  EPSA      11         719
-  716  JMP      662
+  727  TA     '--'                  733
+  731  SEM       10
+  732  RET
 
-  719  TA     new                   734
-  723  NT     Type                   10
-  726  T      '['
-  728  NT     Expr                   11
-  731  T      ']'
-  733  RET
+  733  EPS       12
+  735  RET
 
-  734  T      '('
-  736  NT     Expr                   12
-  739  T      ')'
-  741  RET
+  736  TA     '('                   721
+  740  NTA    ActParList            745  745
+  745  T      ')'
+  747  SEM        8
+  748  JMP      721
+
+  751  TA     '--'                  759
+  755  SEM        4
+  756  JMP      709
+
+  759  EPSA      11         766
+  763  JMP      709
+
+  766  TA     new                   781
+  770  NT     Type                   11
+  773  T      '['
+  775  NT     Expr                   12
+  778  T      ']'
+  780  RET
+
+  781  T      '('
+  783  NT     Expr                   13
+  786  T      ')'
+  788  RET
 
 -----  ActParList  -------------------------
-  742  NT     Expr                    1
-  745  TA     ','                   755
-  749  NT     Expr                    2
-  752  JMP      745
+  789  NT     Expr                    1
+  792  TA     ','                   802
+  796  NT     Expr                    2
+  799  JMP      792
 
-  755  EPS        3
-  757  RET
+  802  EPS        3
+  804  RET
 
 -----  FormParTypeRight  -------------------
-  758  TA     '*'                   762
-  762  TC     ident                   1
-  765  TA     '['                   772
-  769  T      ']'
-  771  RET
+  805  TA     '*'                   809
+  809  TC     ident                   1
+  812  TA     '['                   819
+  816  T      ']'
+  818  RET
 
-  772  EPS       13
-  774  RET
-
------  FormPar  ----------------------------
-  775  TA     void                  788
-  779  NTA    FormParTypeRight      785  785
-  784  RET
-
-  785  EPS       13
-  787  RET
-
-  788  TA     int                   796
-  792  NT     FormParTypeRight        2
-  795  RET
-
-  796  T      bool
-  798  JMP      792
+  819  EPS       13
+  821  RET
 
 -----  MutDef  -----------------------------
-  801  NT     Type                    1
-  804  TA     '*'                   808
-  808  TC     ident                   2
-  811  NTA    Init                  826  826
-  816  SEM        4
-  817  NTA    Block                 822  822
-  822  EPS       15
-  824  SEM        8
-  825  RET
+  822  NT     Type                    1
+  825  TA     '*'                   829
+  829  TC     ident                   2
+  832  NTA    Init                  847  847
+  837  SEM        4
+  838  NTA    Block                 844  844
+  843  RET
 
-  826  EPSA      14         833
-  830  JMP      816
+  844  EPS       15
+  846  RET
 
-  833  T      '('
-  835  NTA    FormParList           840  840
-  840  T      ')'
-  842  SEM        6
-  843  JMP      817
+  847  EPSA      14         854
+  851  JMP      837
+
+  854  T      '('
+  856  NTA    FormParList           861  861
+  861  T      ')'
+  863  SEM        6
+  864  JMP      838
 
 -----  R o o t  ----------------------------
-  846  NT     MiniCpp                 1
-  849  T      'end of file'
-  851  RET
+  867  NT     MiniCpp                 1
+  870  T      'end of file'
+  872  RET
 
 
 nonterminals:
 ============
 
 MiniCpp                   1 del { const, bool, void, int, ';' }
-ConstDef                 28     { const }
-Init                     57     { '=' }
-VarDef                   90     { bool, void, int }
-FormParList             133     { bool, void, int }
-Type                    149     { bool, void, int }
-Block                   162     { '{' }
-Stat                    191     { false, true, nullptr, if, while, break, cin, 
+ConstDef                 29     { const }
+Init                     58     { '=' }
+VarDef                   91     { bool, void, int }
+FormParList             134     { bool, void, int }
+Type                    190     { bool, void, int }
+Block                   203     { '{' }
+Stat                    233     { false, true, nullptr, if, while, break, cin, 
                                 cout, delete, return, new, '+', '-', '(', '!', 
                                 '{', ';', '++', '--', number, ident }
-EmptyStat               268     { ';' }
-BlockStat               271     { '{' }
-ExprStat                275     { false, true, nullptr, new, '+', '-', '(', '!', 
+EmptyStat               310     { ';' }
+BlockStat               313     { '{' }
+ExprStat                317     { false, true, nullptr, new, '+', '-', '(', '!', 
                                 '++', '--', number, ident }
-IfStat                  281     { if }
-WhileStat               306     { while }
-BreakStat               320     { break }
-InputStat               326     { cin }
-OutputStat              336     { cout }
-DeleteStat              386     { delete }
-ReturnStat              398     { return }
-Expr                    408     { false, true, nullptr, new, '+', '-', '(', '!', 
+IfStat                  323     { if }
+WhileStat               348     { while }
+BreakStat               362     { break }
+InputStat               368     { cin }
+OutputStat              379     { cout }
+DeleteStat              432     { delete }
+ReturnStat              444     { return }
+Expr                    454     { false, true, nullptr, new, '+', '-', '(', '!', 
                                 '++', '--', number, ident }
-OrExpr                  465     { false, true, nullptr, new, '+', '-', '(', '!', 
+OrExpr                  511     { false, true, nullptr, new, '+', '-', '(', '!', 
                                 '++', '--', number, ident }
-AndExpr                 482     { false, true, nullptr, new, '+', '-', '(', '!', 
+AndExpr                 528     { false, true, nullptr, new, '+', '-', '(', '!', 
                                 '++', '--', number, ident }
-RelExpr                 499     { false, true, nullptr, new, '+', '-', '(', '!', 
+RelExpr                 545     { false, true, nullptr, new, '+', '-', '(', '!', 
                                 '++', '--', number, ident }
-SimpleExpr              556     { false, true, nullptr, new, '+', '-', '(', '!', 
+SimpleExpr              602     { false, true, nullptr, new, '+', '-', '(', '!', 
                                 '++', '--', number, ident }
-Term                    594     { false, true, nullptr, new, '(', '!', '++', '--', 
+Term                    640     { false, true, nullptr, new, '(', '!', '++', '--', 
                                 number, ident }
-NotFact                 627     { false, true, nullptr, new, '(', '!', '++', '--', 
+NotFact                 673     { false, true, nullptr, new, '(', '!', '++', '--', 
                                 number, ident }
-Fact                    636     { false, true, nullptr, new, '(', '++', '--', 
+Fact                    682     { false, true, nullptr, new, '(', '++', '--', 
                                 number, ident }
-ActParList              742     { false, true, nullptr, new, '+', '-', '(', '!', 
+ActParList              789     { false, true, nullptr, new, '+', '-', '(', '!', 
                                 '++', '--', number, ident }
-FormParTypeRight        758     { '*', ident }
-FormPar                 775     { bool, void, int }
-MutDef                  801     { bool, void, int }
+FormParTypeRight        805     { '*', ident }
+MutDef                  822     { bool, void, int }
 
 
 eps look-aheads:

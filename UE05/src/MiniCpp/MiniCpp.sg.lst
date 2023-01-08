@@ -4,202 +4,211 @@ Coco-2 SG (source: MiniCpp.atg)
     2| 
     3|   SEM<<
     4| 
-    5|   
-    6|   private static int numStats = 0;  
-    7|   private static int cyclomaticComplexity = 1;
-    8|   private static System.Collections.Generic.Dictionary<string, string> callGraph = new System.Collections.Generic.Dictionary<string, string>();
-    9|   private static string currFunc = "";
-   10|   private static System.Collections.Generic.SortedSet<string> n1 = new System.Collections.Generic.SortedSet<string>();
-   11|   private static System.Collections.Generic.SortedSet<Tuple<string, string> > n2 = new System.Collections.Generic.SortedSet<Tuple<string, string> >();
-   12|   private static int N1 = 0;
-   13|   private static int N2 = 0;
+    5|   private static int numStats = 0;  
+    6|   private static int cyclomaticComplexity = 1;
+    7|   private static System.Collections.Generic.SortedSet<string> n1 = new System.Collections.Generic.SortedSet<string>();
+    8|   private static System.Collections.Generic.SortedSet<string> n2 = new System.Collections.Generic.SortedSet<string>();
+    9|   private static int N1 = 0;
+   10|   private static int N2 = 0;
+   11| 
+   12|   private static void PrintAnalysisResults() {
+   13|     System.Console.WriteLine("using .NET Framework " + System.Environment.Version);
    14| 
-   15|   private static void PrintAnalysisResults() {
-   16|     System.Console.WriteLine("b)");
-   17|     System.Console.WriteLine("  Lines of Code: " + MiniCppLex.curLine);
-   18|     System.Console.WriteLine("  Number of statements: " + numStats);
-   19|     System.Console.WriteLine("  Cyclomatic Complexity: " + cyclomaticComplexity);
-   20|     foreach (var item in callGraph) {
-   21|       System.Console.WriteLine("    " + item.Key + " -> " + item.Value);
-   22|     }
-   23|     foreach (var item in n2) {
-   24|       System.Console.WriteLine("    " + item.Item1 + " -> " + item.Item2);
-   25|     }
-   26|     int n = n1.Count + n2.Count;
-   27|     int N = N1 + N2;
-   28|     double V = (double)N * System.Math.Log(n, 2);
-   29|     double D = (double)(n1.Count * N2) / (double)(2 * n2.Count);
-   30|     double E = D * V;
-   31|     System.Console.WriteLine("c)");
-   32|     System.Console.WriteLine("  vocabulary: " + n);
-   33|     System.Console.WriteLine("  length: " + N);
-   34|     System.Console.WriteLine("  volume: " + V);
-   35|     System.Console.WriteLine("  difficulty: " + D);
-   36|     System.Console.WriteLine("  effort: " + E);
-   37|   }
-   38|   
-   39|   
-   40|   >>
+   15|     System.Console.WriteLine("b)");
+   16|     System.Console.WriteLine("  Lines of Code:         " + MiniCppLex.curLine);
+   17|     System.Console.WriteLine("  Number of statements:  " + numStats);
+   18|     System.Console.WriteLine("  Cyclomatic Complexity: " + cyclomaticComplexity);
+   19| 
+   20|     string n1AsString = // cannot do "using System.Linq" here :(
+   21|       System.Linq.Enumerable.Aggregate(n1, (l, r) => l.ToString() + ", " + r.ToString());
+   22|     string n2AsString = 
+   23|       System.Linq.Enumerable.Aggregate(n2, (l, r) => l.ToString() + ", " + r.ToString());
+   24|     int n = n1.Count + n2.Count;
+   25|     int N = N1 + N2;
+   26|     double V = (double)N * System.Math.Log(n, 2);
+   27|     double D = (double)(n1.Count * N2) / (double)(2 * n2.Count);
+   28|     double E = D * V;
+   29|     System.Console.WriteLine("c)");
+   30|     System.Console.WriteLine("  n1: " + n1AsString);
+   31|     System.Console.WriteLine("  n2: " + n2AsString);
+   32|     System.Console.WriteLine("  N1: " + N1);
+   33|     System.Console.WriteLine("  N2: " + N2);
+   34|     System.Console.WriteLine();
+   35|     System.Console.WriteLine("  vocabulary: " + n);
+   36|     System.Console.WriteLine("  length:     " + N);
+   37|     System.Console.WriteLine("  volume:     " + V.ToString("N2"));
+   38|     System.Console.WriteLine("  difficulty: " + D.ToString("N2"));
+   39|     System.Console.WriteLine("  effort:     " + E.ToString("N2"));
+   40|   }
    41| 
-   42| CHARACTER SETS
-   43|   digit      = '0' .. '9'.
-   44|   whiteSpace = CHR(9) + EOL IGNORE. /*' ' ignored by default*/
-   45|   letter     = 'a' .. 'z' + 'A' .. 'Z' + '_'.
-   46|   anyButDoubleQuote = ANY - '"'.
-   47| 
-   48| COMMENTS
-   49|   FROM '/*' TO '*/' .
-   50|   FROM '//' TO EOL .
-   51| 
-   52| KEYWORDS
-   53|   'const'. 'false'. 'true'. 'nullptr'. 'bool'. 'if'. 'else'. 'while'. 'break'. 'cin'. 'cout'. 'endl'. 'delete'. 'return'. 'new'. 'void'. 'int'.
-   54| 
-   55| TOKENS                      
-   56|   '+'.  '-'.  '*'.  '/'.  '('.  ')'. '%'. '<'. '>'. '!'.
-   57|   '{'. '}'.
-   58|   ','. ';'. '='. 
-   59|   '>='. '<='. '>>'. '<<'. '+='. '-='. '*='. '/='. '%='. '=='. '!='. '++'. '--'. '||'. '&&'. '['. ']'.
-   60| 
-   61| TOKEN CLASSES           
-   62|   number<<out int n>> = 
-   63|     digit { digit }           LEX<<n = Convert.ToInt32(tokenStr);>>
-   64|   .
-   65| 
-   66|   ident<<out string idStr>> =
-   67|     letter { letter | digit } LEX<<idStr = tokenStr;>>
-   68|   .
-   69| 
-   70|   string<<out string str>> =
-   71|     '"' { anyButDoubleQuote } '"' LEX<<str = tokenStr;>>
-   72|   .
-   73| 
-   74| NONTERMINALS
-   75|   MiniCpp.
-   76|   ConstDef.
-   77|   Init.
-   78|   VarDef.
-   79|   FormParList.
-   80|   Type.
-   81|   Block.
-   82|   Stat.
-   83|   EmptyStat.
-   84|   BlockStat.
-   85|   ExprStat.
-   86|   IfStat.
-   87|   WhileStat.
-   88|   BreakStat.
-   89|   InputStat.
-   90|   OutputStat.
-   91|   DeleteStat.
-   92|   ReturnStat.
-   93|   Expr.
-   94|   OrExpr.
-   95|   AndExpr.
-   96|   RelExpr.
-   97|   SimpleExpr.
-   98|   Term.
-   99|   NotFact.
-  100|   Fact.
-  101|   ActParList.
-  102|   FormParTypeRight.
-  103|   FormPar.
-  104|   MutDef.
-  105| 
-  106| RULES
-  107| 
-  108|   MiniCpp = { ConstDef | MutDef | ';' } SEM<<PrintAnalysisResults();>>
-  109|     .
-  110|   ConstDef =                          LOCAL<<string idStr1 = ""; string idStrN = "";>>
-  111|      'const' Type ident<<out idStr1>> SEM<<n2.Add(Tuple.Create(currFunc, idStr1)); N2++;>> Init { ',' ident<<out idStrN>> SEM<<n2.Add(Tuple.Create(currFunc, idStrN)); N2++;>> Init } ';' .
-  112|   Init =                              LOCAL<<int n = 0;>>
-  113|     '=' ( false | true | 'nullptr'
-  114|     | [ '+' | '-' SEM<<n1.Add("-"); N1++;>> ] number<<out n>> ) .
-  115|   
-  116|   
-  117|   // VarDef | FuncHead
-  118|   MutDef =                   LOCAL<<string idStr = "";>>
-  119|       Type [ '*' ] ident<<out idStr>> ( [ Init ] SEM<<n2.Add(Tuple.Create(currFunc, idStr)); N2++;>> |
-  120|        '(' [ FormParList ] ')' SEM<<currFunc = idStr;>> ) [ Block ] SEM<<currFunc = ""; //reset curr func name>>
-  121|     .
-  122| 
-  123|   VarDef =                    LOCAL<<string idStr1 = ""; string idStrN = "";>>
-  124|     Type [ '*' ] ident<<out idStr1>> [ Init ] SEM<<n2.Add(Tuple.Create(currFunc, idStr1)); N2++;>>
-  125|     { ',' [ '*' ] ident<<out idStrN>> [ Init ] SEM<<n2.Add(Tuple.Create(currFunc, idStrN)); N2++;>> } ';' 
-  126|     .
-  127|   
-  128|   FormParList =               
-  129|     FormPar { ',' FormPar }  
-  130|     .
-  131| 
-  132|   FormPar = 
-  133|     ( 'void' [ FormParTypeRight ]
-  134|     | ('int' | 'bool' ) FormParTypeRight
-  135|     )
-  136|     .
-  137|   FormParTypeRight =                       LOCAL<<string idStr = "";>>
-  138|    [ '*' ] ident<<out idStr>> [ '[' ']' ]
-  139|    .
-  140| 
-  141|   Type = 'void' | 'bool' | 'int' .
-  142|   Block = '{' { ConstDef | VarDef | Stat } '}' .
-  143|   Stat = ( EmptyStat | BlockStat | ExprStat
-  144|     | IfStat | WhileStat | BreakStat
-  145|     | InputStat | OutputStat
-  146|     | DeleteStat | ReturnStat
-  147|     ) SEM<<numStats++;>>.
-  148|   EmptyStat = ';' .
-  149|   BlockStat = Block .
-  150|   ExprStat = Expr ';' .
-  151|   IfStat = 'if' SEM<<cyclomaticComplexity++; n1.Add("if"); N1++;>> '(' Expr ')' Stat [ 'else' SEM<<n1.Add("else"); N1++;>> Stat ] .
-  152|   WhileStat = 'while' SEM<<cyclomaticComplexity++; n1.Add("while"); N1++;>> '(' Expr ')' Stat .
-  153|   BreakStat = 'break' SEM<<n1.Add("break"); N1++;>> ';' .
-  154|   InputStat =                             LOCAL<<string idStr = "";>>
-  155|     'cin' '>>' ident<<out idStr>> ';' .
-  156|   OutputStat =                          LOCAL<<string str = "";>>
-  157|     'cout' '<<' ( Expr | string<<out str>> | 'endl' )
-  158|     { '<<' ( Expr | string<<out str>> | 'endl' ) } ';' .
-  159|   DeleteStat =                    LOCAL<<string idStr = "";>>
-  160|     'delete' '[' ']' ident<<out idStr>> ';' .
-  161|   ReturnStat = 'return' [ Expr ] ';' .
-  162|   Expr = 
-  163|     OrExpr { 
-  164|       ( '=' SEM<<n1.Add("="); N1++;>> 
-  165|       | '+=' SEM<<n1.Add("+="); N1++;>> 
-  166|       | '-=' SEM<<n1.Add("-="); N1++;>> 
-  167|       | '*=' SEM<<n1.Add("*="); N1++;>>
-  168|       | '/=' SEM<<n1.Add("/="); N1++;>>
-  169|       | '%=' SEM<<n1.Add("%="); N1++;>> ) OrExpr } .
-  170|   OrExpr = AndExpr { '||' SEM<<n1.Add("||"); N1++;>> AndExpr } .
-  171|   AndExpr = RelExpr { '&&' SEM<<n1.Add("&&"); N1++;>> RelExpr } .
-  172|   RelExpr = SimpleExpr {
-  173|     ( '==' SEM<<n1.Add("=="); N1++;>> 
-  174|     | '!=' SEM<<n1.Add("!="); N1++;>> 
-  175|     | '<' SEM<<n1.Add("<"); N1++;>>
-  176|     | '<=' SEM<<n1.Add("<="); N1++;>>
-  177|     | '>' SEM<<n1.Add(">"); N1++;>>
-  178|     | '>=' SEM<<n1.Add(">="); N1++;>> ) SimpleExpr } .
-  179|   SimpleExpr = [ '+' SEM<<n1.Add("+"); N1++;>> | '-' SEM<<n1.Add("-"); N1++;>> ]
-  180|     Term { ( '+' SEM<<n1.Add("+"); N1++;>> | '-' SEM<<n1.Add("-"); N1++;>> ) Term } .
-  181|   Term = 
-  182|     NotFact { 
-  183|       ( '*' SEM<<n1.Add("*"); N1++;>>
-  184|       | '/' SEM<<n1.Add("/"); N1++;>> 
-  185|       | '%' SEM<<n1.Add("%"); N1++;>> ) NotFact } .
-  186|   NotFact = [ '!' SEM<<n1.Add("!"); N1++;>> ] Fact .
-  187|   Fact =                              LOCAL<<int n = 0; string idStr = "";>>
-  188|     ( 'false' | 'true' | 'nullptr' | number<<out n>>
-  189|     | [ '++' SEM<<n1.Add("++"); N1++;>> | '--' SEM<<n1.Add("--"); N1++;>> ]
-  190|       ident<<out idStr>> [ ( '[' Expr ']' )
-  191|         | ( '(' [ ActParList ] ')' SEM<<callGraph.Add(currFunc, idStr); n2.Add(Tuple.Create(currFunc, idStr)); N2++;>> )
-  192|         ]
-  193|       [ '++' SEM<<n1.Add("++"); N1++;>> | '--' SEM<<n1.Add("--"); N1++;>> ]
-  194|     | 'new' Type '[' Expr ']'
-  195|     | '(' Expr ')'
-  196|     ) .
-  197|   ActParList = Expr { ',' Expr } .
-  198| 
-  199| END MiniCpp.
-  200| 
+   42|   private static void AddToN1(string item) {
+   43|     n1.Add(item); N1++;
+   44|   }
+   45| 
+   46|   private static void AddToN2(string item) {
+   47|     n2.Add(item); N2++;
+   48|   }
+   49|   
+   50|   // if user selects "[c]ontinue", we have to reset all of our collected data
+   51|   private static void Reset() {
+   52|     numStats = 0;
+   53|     cyclomaticComplexity = 1;
+   54|     n1.Clear();
+   55|     n2.Clear();
+   56|     N1 = 0;
+   57|     N2 = 0;
+   58|   }
+   59| 
+   60|   >>
+   61| 
+   62| CHARACTER SETS
+   63|   digit      = '0' .. '9'.
+   64|   whiteSpace = CHR(9) + EOL IGNORE. /*' ' ignored by default*/
+   65|   letter     = 'a' .. 'z' + 'A' .. 'Z' + '_'.
+   66|   anyButDoubleQuote = ANY - '"'.
+   67| 
+   68| COMMENTS
+   69|   FROM '/*' TO '*/' .
+   70|   FROM '//' TO EOL .
+   71| 
+   72| KEYWORDS
+   73|   'const'. 'false'. 'true'. 'nullptr'. 'bool'. 'if'. 'else'. 'while'. 'break'. 'cin'. 'cout'. 'endl'. 'delete'. 'return'. 'new'. 'void'. 'int'.
+   74| 
+   75| TOKENS                      
+   76|   '+'.  '-'.  '*'.  '/'.  '('.  ')'. '%'. '<'. '>'. '!'.
+   77|   '{'. '}'.
+   78|   ','. ';'. '='. 
+   79|   '>='. '<='. '>>'. '<<'. '+='. '-='. '*='. '/='. '%='. '=='. '!='. '++'. '--'. '||'. '&&'. '['. ']'.
+   80| 
+   81| TOKEN CLASSES           
+   82|   number<<out int n>> = 
+   83|     digit { digit }           LEX<<n = Convert.ToInt32(tokenStr);>>
+   84|   .
+   85| 
+   86|   ident<<out string idStr>> =
+   87|     letter { letter | digit } LEX<<idStr = tokenStr;>>
+   88|   .
+   89| 
+   90|   string<<out string str>> =
+   91|     '"' { anyButDoubleQuote } '"' LEX<<str = tokenStr;>>
+   92|   .
+   93| 
+   94| NONTERMINALS
+   95|   MiniCpp.
+   96|   ConstDef.
+   97|   Init.
+   98|   VarDef.
+   99|   FormParList.
+  100|   Type.
+  101|   Block.
+  102|   Stat.
+  103|   EmptyStat.
+  104|   BlockStat.
+  105|   ExprStat.
+  106|   IfStat.
+  107|   WhileStat.
+  108|   BreakStat.
+  109|   InputStat.
+  110|   OutputStat.
+  111|   DeleteStat.
+  112|   ReturnStat.
+  113|   Expr.
+  114|   OrExpr.
+  115|   AndExpr.
+  116|   RelExpr.
+  117|   SimpleExpr.
+  118|   Term.
+  119|   NotFact.
+  120|   Fact.
+  121|   ActParList.
+  122|   FormParTypeRight.
+  123|   MutDef.
+  124| 
+  125| RULES
+  126| 
+  127|   MiniCpp = SEM<<Reset();>> { ConstDef | MutDef | ';' } SEM<<PrintAnalysisResults();>>
+  128|     .
+  129|   ConstDef =                          LOCAL<<string idStr1 = ""; string idStrN = "";>>
+  130|      'const' Type ident<<out idStr1>> SEM<<AddToN2(idStr1);>> Init { ',' ident<<out idStrN>> SEM<<AddToN2(idStrN);>> Init } ';' .
+  131|   Init =                              LOCAL<<int n = 0;>>
+  132|     '=' ( false | true | 'nullptr'
+  133|     | [ '+' | '-' ] number<<out n>> SEM<<AddToN2(n.ToString());>> ) .
+  134|   // VarDef | FuncHead => not ConstDef, so its [Mut]able
+  135|   MutDef =                   LOCAL<<string idStr = "";>>
+  136|       Type [ '*' ] ident<<out idStr>> ( [ Init ] SEM<<AddToN2(idStr);>> |
+  137|        '(' [ FormParList ] ')' SEM<<AddToN1("()");>> ) [ Block ]
+  138|     .
+  139|   VarDef =                    LOCAL<<string idStr1 = ""; string idStrN = "";>>
+  140|     Type [ '*' ] ident<<out idStr1>> [ Init ] SEM<<AddToN2(idStr1);>>
+  141|     { ',' [ '*' ] ident<<out idStrN>> [ Init ] SEM<<AddToN2(idStrN);>> } ';' 
+  142|     .
+  143|   FormParList =              
+  144|     ( 'void' [ FormParTypeRight { ',' Type FormParTypeRight } ]
+  145|     | ('int' | 'bool' ) FormParTypeRight { ',' Type FormParTypeRight } )
+  146|     .
+  147|   FormParTypeRight =                       LOCAL<<string idStr = "";>> 
+  148|     [ '*' ] ident<<out idStr>> [ '[' ']' ]
+  149|     .
+  150|   Type = 'void' | 'bool' | 'int' .
+  151|   Block = '{' { ConstDef | VarDef | Stat } '}' SEM<<AddToN1("{}");>> .
+  152|   Stat = ( EmptyStat | BlockStat | ExprStat
+  153|     | IfStat | WhileStat | BreakStat
+  154|     | InputStat | OutputStat
+  155|     | DeleteStat | ReturnStat
+  156|     ) SEM<<numStats++;>>.
+  157|   EmptyStat = ';' .
+  158|   BlockStat = Block .
+  159|   ExprStat = Expr ';' .
+  160|   IfStat = 'if' SEM<<cyclomaticComplexity++; AddToN1("if");>> '(' Expr ')' Stat [ 'else' SEM<<AddToN1("else");>> Stat ] .
+  161|   WhileStat = 'while' SEM<<cyclomaticComplexity++; AddToN1("while");>> '(' Expr ')' Stat .
+  162|   BreakStat = 'break' SEM<<AddToN1("break");>> ';' .
+  163|   InputStat =                             LOCAL<<string idStr = "";>>
+  164|     'cin' SEM<<AddToN1("cin");>> '>>' ident<<out idStr>> ';' .
+  165|   OutputStat =                          LOCAL<<string str = "";>>
+  166|     'cout' SEM<<AddToN1("cout");>> '<<' ( Expr | string<<out str>> SEM<<AddToN2(str);>>  | 'endl' )
+  167|     { '<<' ( Expr | string<<out str>> SEM<<AddToN2(str);>> | 'endl' ) } ';' .
+  168|   DeleteStat =                    LOCAL<<string idStr = "";>>
+  169|     'delete' '[' ']' ident<<out idStr>> ';' .
+  170|   ReturnStat = 'return' [ Expr ] ';' .
+  171|   Expr = 
+  172|     OrExpr { 
+  173|       ( '=' SEM<<AddToN1("=");>> 
+  174|       | '+=' SEM<<AddToN1("+=");>> 
+  175|       | '-=' SEM<<AddToN1("-=");>> 
+  176|       | '*=' SEM<<AddToN1("*=");>>
+  177|       | '/=' SEM<<AddToN1("/=");>>
+  178|       | '%=' SEM<<AddToN1("%=");>> ) OrExpr } .
+  179|   OrExpr = AndExpr { '||' SEM<<AddToN1("||");>> AndExpr } .
+  180|   AndExpr = RelExpr { '&&' SEM<<AddToN1("&&");>> RelExpr } .
+  181|   RelExpr = SimpleExpr {
+  182|     ( '==' SEM<<AddToN1("==");>> 
+  183|     | '!=' SEM<<AddToN1("!=");>> 
+  184|     | '<' SEM<<AddToN1("<");>>
+  185|     | '<=' SEM<<AddToN1("<=");>>
+  186|     | '>' SEM<<AddToN1(">");>>
+  187|     | '>=' SEM<<AddToN1(">=");>> ) SimpleExpr } .
+  188|   SimpleExpr = [ '+' SEM<<AddToN1("+");>> | '-' SEM<<AddToN1("-");>> ]
+  189|     Term { ( '+' SEM<<AddToN1("+");>> | '-' SEM<<AddToN1("-");>> ) Term } .
+  190|   Term = 
+  191|     NotFact { 
+  192|       ( '*' SEM<<AddToN1("*");>>
+  193|       | '/' SEM<<AddToN1("/");>> 
+  194|       | '%' SEM<<AddToN1("%");>> ) NotFact } .
+  195|   NotFact = [ '!' SEM<<AddToN1("!");>> ] Fact .
+  196|   Fact =                              LOCAL<<int n = 0; string idStr = "";>>
+  197|     ( 'false' | 'true' | 'nullptr' | number<<out n>> SEM<<AddToN1(n.ToString());>> 
+  198|     | [ '++' SEM<<AddToN1("++");>> | '--' SEM<<AddToN1("--");>> ]
+  199|       ident<<out idStr>> [ ( '[' Expr ']' )
+  200|         | ( '(' [ ActParList ] ')' SEM<<AddToN2(idStr);>> )
+  201|         ]
+  202|       [ '++' SEM<<AddToN1("++");>> | '--' SEM<<AddToN1("--");>> ]
+  203|     | 'new' Type '[' Expr ']'
+  204|     | '(' Expr ')'
+  205|     ) .
+  206|   ActParList = Expr { ',' Expr } .
+  207| 
+  208| END MiniCpp.
+  209| 
 
 
 error(s) and warning(s):

@@ -1,8 +1,5 @@
 COMPILER MiniC
 
-Set<Tuple<int, string> > /* BAD!abstand zwischen > > */>>
-SEM<<private static int numStats = 0;>>
-
 CHARACTER SETS
   digit      = '0' .. '9'.
   whiteSpace = CHR(9) + EOL IGNORE. /*' ' ignored by default*/
@@ -33,7 +30,6 @@ NONTERMINALS
   VarDecl.
   StatSeq.
   Stat.
-  IfStat.
   Expr.
   Term.
   Fact.
@@ -43,7 +39,7 @@ RULES
   MiniC = 'void' 'main' '(' ')' '{'
     [ VarDecl ]
     StatSeq
-    '}' SEM<<System.Console.WriteLine("Number of Statements: " + numStats);>>.
+    '}' .
 
   VarDecl =
     'int' ident<<out string id1>> { ',' ident<<out string id2>> } ';' .
@@ -56,10 +52,7 @@ RULES
     | ident<<out string id1>> '=' Expr ';'
     | 'scanf' '(' ident<<out string id2>> ')' ';'
     | 'printf' '(' Expr ')' ';'
-    | IfStat ) SEM<<numStats++;>>
-    .
-
-IfStat = 'if' '(' Expr ')' Stat [ 'else' Stat ] .
+    ).
 
   Expr = 
     Term             

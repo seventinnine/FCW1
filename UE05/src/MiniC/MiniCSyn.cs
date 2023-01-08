@@ -23,7 +23,7 @@ public class MiniCSyn {
     T, TA, TC, TCA, NT, NTA, ANY, ANYA, EPS, EPSA, JMP, RET
   } // Instruction
 
-  private const int ROOTPC     =  209;
+  private const int ROOTPC     =  170;
   private const int LASTTERM   =   20;
   private const int LASTPRAGMA =   20;
 
@@ -47,39 +47,34 @@ public class MiniCSyn {
   
   private class GrammarTable {
     public int[]  header = {
-      214, 20, 20, 28, 4, 0
+      175, 20, 20, 27, 3, 0
     };
     public byte[] code = {
          0,   1,   0,   2,   0,  12,   0,  13,   0,  14,   5,   1,  16,   0,
-         1,   4,   2,   2,   0,  15,  15,  11,   0,   3,   2,  20,   1,   1,
-        16,  38,   0,   2,  20,   2,  10,  28,   0,   0,  17,  11,   4,   3,
-         1,   5,   3,  52,   0,   2,  10,  44,   0,   8,   1,  11,   1,  17,
-        61,   0,  18,  11,   3,  20,  76,   0,   1,   0,  18,   4,   5,   2,
-         0,  17,  10,  59,   0,   1,   4,  92,   0,   0,  12,   2,  20,   3,
-         0,  13,   0,  17,  10,  59,   0,   1,   5, 108,   0,   0,  12,   4,
-         5,   4,   0,  13,   0,  17,  10,  59,   0,   4,   4,   5,  10,  59,
-         0,   0,   6,   0,  12,   4,   5,   1,   0,  13,   4,   3,   2,   1,
-         7, 134,   0,   4,   3,   3,  11,   8,   2,  11,   4,   6,   1,   1,
-         8, 150,   0,   4,   6,   2,  10, 140,   0,   1,   9, 160,   0,   4,
-         6,   3,  10, 140,   0,   8,   3,  11,   4,   7,   1,   1,  10, 176,
-         0,   4,   7,   2,  10, 166,   0,   1,  11, 186,   0,   4,   7,   3,
-        10, 166,   0,   8,   4,  11,   3,  20, 195,   0,   1,  11,   3,  19,
-       201,   0,   2,  11,   0,  12,   4,   5,   3,   0,  13,  11,   4,   0,
-         1,   0,   0,  11
+         1,   4,   2,   2,   0,  15,  11,   0,   3,   2,  20,   1,   1,  16,
+        37,   0,   2,  20,   2,  10,  27,   0,   0,  17,  11,   4,   3,   1,
+         5,   3,  51,   0,   2,  10,  43,   0,   8,   1,  11,   1,  17,  59,
+         0,  11,   3,  20,  72,   0,   1,   0,  18,   4,   4,   2,   0,  17,
+        11,   1,   4,  86,   0,   0,  12,   2,  20,   3,   0,  13,   0,  17,
+        11,   0,   5,   0,  12,   4,   4,   4,   0,  13,   0,  17,  11,   4,
+         5,   1,   1,   8, 111,   0,   4,   5,   2,  10, 101,   0,   1,   9,
+       121,   0,   4,   5,   3,  10, 101,   0,   8,   2,  11,   4,   6,   1,
+         1,  10, 137,   0,   4,   6,   2,  10, 127,   0,   1,  11, 147,   0,
+         4,   6,   3,  10, 127,   0,   8,   3,  11,   3,  20, 156,   0,   1,
+        11,   3,  19, 162,   0,   2,  11,   0,  12,   4,   4,   3,   0,  13,
+        11,   4,   0,   1,   0,   0,  11
     };
     public NTData[] nts = {
       new NTData(   1, false, new Sets.Set256(0x0002)),
-      new NTData(  23, false, new Sets.Set256(0x0008)),
-      new NTData(  41, false, new Sets.Set256(0x0070, 0x0012)),
-      new NTData(  55, false, new Sets.Set256(0x0070, 0x0012)),
-      new NTData( 114, false, new Sets.Set256(0x0040)),
-      new NTData( 137, false, new Sets.Set256(0x1000, 0x0018)),
-      new NTData( 163, false, new Sets.Set256(0x1000, 0x0018)),
-      new NTData( 189, false, new Sets.Set256(0x1000, 0x0018))
+      new NTData(  22, false, new Sets.Set256(0x0008)),
+      new NTData(  40, false, new Sets.Set256(0x0030, 0x0012)),
+      new NTData(  54, false, new Sets.Set256(0x0030, 0x0012)),
+      new NTData(  98, false, new Sets.Set256(0x1000, 0x0018)),
+      new NTData( 124, false, new Sets.Set256(0x1000, 0x0018)),
+      new NTData( 150, false, new Sets.Set256(0x1000, 0x0018))
     };
     public Sets.Set256[] epsSets = {
       new Sets.Set256(0x8000),
-      new Sets.Set256(0x80f0, 0x0012),
       new Sets.Set256(0x2000, 0x0002),
       new Sets.Set256(0x2300, 0x0002)
     };
@@ -89,8 +84,8 @@ public class MiniCSyn {
     public String[] names = {
       "end of file", "void", "main", "int", "scanf", "printf", "if",
       "else", "+", "-", "*", "/", "(", ")", "{", "}", ",", ";", "=",
-      "number", "ident", "MiniC", "VarDecl", "StatSeq", "Stat", "IfStat",
-      "Expr", "Term", "Fact"
+      "number", "ident", "MiniC", "VarDecl", "StatSeq", "Stat", "Expr",
+      "Term", "Fact"
     };
   } // GrammarTable;
 

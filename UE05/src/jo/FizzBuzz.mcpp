@@ -1,0 +1,32 @@
+// CPP program to print Fizz Buzz
+// taken from https://www.geeksforgeeks.org/fizz-buzz-implementation/
+// and modified to fit MiniCpp-language
+//#include <stdio.h>
+
+int main(void)
+{
+  int i;
+  while (i<=100)
+  {
+    // number divisible by 3 and 5 will
+    // always be divisible by 15, print
+    // 'FizzBuzz' in place of the number
+    if (i%15 == 0)
+      cout << "FizzBuzz" << endl;
+
+    // number divisible by 3? print 'Fizz'
+    // in place of the number
+    else if ((i%3) == 0)
+      cout << "Fizz" << endl;
+
+    // number divisible by 5, print 'Buzz'
+    // in place of the number
+    else if ((i%5) == 0)
+      cout << "Buzz" << endl;
+    else // print the Number
+      cout << i << endl;
+    i++;
+  }
+
+  return 0;
+}

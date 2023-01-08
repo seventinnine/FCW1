@@ -33,7 +33,7 @@ public class MiniCSem {
 
   // *** start of global SYN and SEM declarations from ATG ***
   
-  private static int numStats = 0;
+
   // *** end of global SYN and SEM declarations from ATG ***
 
   
@@ -48,9 +48,6 @@ public class MiniCSem {
           break;
         case 2:
           NT_StatSeq();
-          break;
-        case 3: // SEM
-          System.Console.WriteLine("Number of Statements: " + numStats);
           break;
       } // switch
     } // for
@@ -103,33 +100,9 @@ public class MiniCSem {
         case 4:
           NT_Expr();
           break;
-        case 5:
-          NT_IfStat();
-          break;
-        case 6: // SEM
-          numStats++;
-          break;
       } // switch
     } // for
   } // NT_Stat
-
-  private static void NT_IfStat() {
-    for (;;) {
-      switch (Syn.Interpret()) {
-        case 0:
-          return;
-        case 1:
-          NT_Expr();
-          break;
-        case 2:
-          NT_Stat();
-          break;
-        case 3:
-          NT_Stat();
-          break;
-      } // switch
-    } // for
-  } // NT_IfStat
 
   private static void NT_Expr() {
     for (;;) {
